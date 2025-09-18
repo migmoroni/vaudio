@@ -1,0 +1,39 @@
+{
+  "name": "vaudio",
+  "version": "1.0.0",
+  "description": "Aplicação multiplataforma com React, React Native e Tauri",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "shared"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "pnpm build:shared",
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "dev:desktop": "pnpm --filter desktop tauri:dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter web build",
+    "build:mobile": "pnpm --filter mobile build",
+    "build:desktop": "pnpm --filter desktop tauri:build",
+    "build:shared": "pnpm --filter shared build",
+    "dev": "pnpm -r --parallel dev",
+    "clean": "pnpm -r exec rm -rf node_modules dist build",
+    "clean:install": "pnpm clean && pnpm install",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r exec eslint --fix .",
+    "type-check": "pnpm -r type-check",
+    "test": "pnpm -r test",
+    "update:deps": "pnpm -r update",
+    "setup": "pnpm install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
