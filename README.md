@@ -1,20 +1,97 @@
-# VAudio - Aplicação Multiplataforma
+# VäUdio
 
-Aplicação de áudio multiplataforma com React Web, React Native Mobile e Tauri Desktop.
+Aplicação multiplataforma com React, React Native e Tauri.
 
-## 🚀 Estrutura do Projeto
+## 🚀 Quick Start
+
+### Pré-requisitos
+
+- Node.js ≥ 18.0.0
+- pnpm ≥ 8.0.0
+- Rust (para desktop)
+- Android Studio/Xcode (para mobile)
+
+### Instalação
+
+```bash
+pnpm install
+```
+
+## 📱 Execução
+
+### Web
+```bash
+pnpm dev:web
+```
+Acesse: http://localhost:3000
+
+### Mobile
+```bash
+pnpm dev:mobile
+```
+Escaneie o QR code com Expo Go ou use simulador.
+
+### Desktop
+```bash
+pnpm dev:desktop
+```
+Abre aplicação nativa automaticamente.
+
+## 🧪 Testes
+
+```bash
+# Executar testes
+pnpm test
+
+# Testes em modo watch
+pnpm test:watch
+
+# Cobertura de testes
+pnpm test:coverage
+```
+
+## � Qualidade de Código
+
+```bash
+# Verificar formatação e linting
+pnpm check
+
+# Corrigir automaticamente
+pnpm check:fix
+
+# Apenas formatação
+pnpm format
+
+# Verificação de tipos
+pnpm type-check
+```
+
+## 📦 Build
+
+```bash
+# Build todas as plataformas
+pnpm build
+
+# Build específico
+pnpm build:web
+pnpm build:mobile
+pnpm build:desktop
+```
+
+## 🛠️ Estrutura
 
 ```
-vaudio/
-├── apps/
-│   ├── web/          # React + Vite
-│   ├── mobile/       # React Native + Expo
-│   └── desktop/      # Tauri + React
-├── shared/           # Código compartilhado TypeScript
-└── package.json      # Workspace pnpm
+apps/
+├── web/        # React + Vite
+├── mobile/     # React Native + Expo
+└── desktop/    # Tauri + React
+
+shared/         # Código compartilhado
 ```
 
-## 📋 Pré-requisitos
+---
+
+## 📋 Guia Detalhado de Instalação
 
 ### 1. Instalar Node.js
 ```bash

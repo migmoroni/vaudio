@@ -4,7 +4,6 @@ export interface User {
   email: string;
   createdAt: Date;
 }
-
 export interface AudioFile {
   id: string;
   name: string;
@@ -12,16 +11,13 @@ export interface AudioFile {
   duration: number;
   size: number;
 }
-
 export interface AppConfig {
   version: string;
   platform: 'web' | 'mobile' | 'desktop';
   features: string[];
 }
-
 export type Platform = 'web' | 'mobile' | 'desktop';
-
-export enum AppStatus {
+export declare enum AppStatus {
   LOADING = 'loading',
   READY = 'ready',
   ERROR = 'error',
