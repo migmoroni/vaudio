@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { VGameEngine, TerminalOutput, TerminalCommand } from '../../../../shared/src/engine';
+import { VGameEngine, TerminalOutput, TerminalCommand } from '../../../../shared/src';
 
 interface TerminalConsoleProps {
   gameEngine: VGameEngine;
@@ -37,59 +37,57 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
 
   // Escuta eventos da game engine
   useEffect(() => {
-    const handleGameOutput = (data: TerminalOutput) => {
-      addOutput(data);
-    };
-
-    const handleEngineStarted = () => {
-      setIsEngineRunning(true);
-      addOutput({
-        type: 'text',
-        content: 'Game engine iniciada. Use os comandos para interagir.',
-        timestamp: Date.now()
-      });
-    };
-
-    const handleEngineStopped = () => {
-      setIsEngineRunning(false);
-      addOutput({
-        type: 'text',
-        content: 'Game engine parada.',
-        timestamp: Date.now()
-      });
-    };
-
-    const handleSceneChanged = (data: any) => {
-      const scene = data.scene;
-      addOutput({
-        type: 'text',
-        content: `=== ${scene.title} ===\n${scene.description}`,
-        timestamp: Date.now()
-      });
-      
-      if (scene.choices && scene.choices.length > 0) {
-        const choicesText = scene.choices
-          .map((choice: any, index: number) => `${index + 1}. ${choice.text}`)
-          .join('\n');
-        
-        addOutput({
-          type: 'choice',
-          content: `Opções:\n${choicesText}`,
-          timestamp: Date.now()
-        });
+    const handleEngineEvent = (event: any) => {
+      switch (event.type) {
+        case 'output':
+          addOutput(event.data);
+          break;
+          
+        case 'engine_started':
+          setIsEngineRunning(true);
+          addOutput({
+            type: 'text',
+            content: 'Game engine iniciada. Use comandos [1], [2], [3], [4] ou suas combinações.',
+            timestamp: Date.now()
+          });
+          break;
+          
+        case 'engine_stopped':
+          setIsEngineRunning(false);
+          addOutput({
+            type: 'text',
+            content: 'Game engine parada.',
+            timestamp: Date.now()
+          });
+          break;
+          
+        case 'scene_changed':
+          // A engine já emite o output da cena automaticamente
+          break;
+          
+        case 'error':
+          addOutput({
+            type: 'text',
+            content: `Erro: ${event.data.message}`,
+            timestamp: Date.now()
+          });
+          break;
       }
     };
 
-    gameEngine.on('game:output', handleGameOutput);
-    gameEngine.on('engine:started', handleEngineStarted);
-    gameEngine.on('engine:stopped', handleEngineStopped);
-    gameEngine.on('scene:changed', handleSceneChanged);
+    // Registra listeners para todos os tipos de eventos
+    gameEngine.on('output', handleEngineEvent);
+    gameEngine.on('engine_started', handleEngineEvent);
+    gameEngine.on('engine_stopped', handleEngineEvent);
+    gameEngine.on('scene_changed', handleEngineEvent);
+    gameEngine.on('error', handleEngineEvent);
 
     return () => {
-      gameEngine.off('game:output', handleGameOutput);
-      gameEngine.off('engine:started', handleEngineStarted);
-      gameEngine.off('engine:stopped', handleEngineStopped);
-      gameEngine.off('scene:changed', handleSceneChanged);
+      gameEngine.off('output', handleEngineEvent);
+      gameEngine.off('engine_started', handleEngineEvent);
+      gameEngine.off('engine_stopped', handleEngineEvent);
+      gameEngine.off('scene_changed', handleEngineEvent);
+      gameEngine.off('error', handleEngineEvent);
     };
   }, [gameEngine]);
 
@@ -124,18 +122,21 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
     try {
       switch (cmd.toLowerCase()) {
         case 'help':
-          await gameEngine.executeCommand('help');
+        case 'ajuda':
+          await gameEngine.executeCommand([1, 2, 3, 4]); // Combinação especial para ajuda do sistema
           break;
           
         case 'status':
-          await gameEngine.executeCommand('status');
+          await gameEngine.executeCommand([2, 3, 4]); // Combinação para status
           break;
           
         case 'start':
+        case 'iniciar':
           await gameEngine.start();
           break;
           
         case 'stop':
+        case 'parar':
           await gameEngine.stop();
           break;
           
@@ -149,10 +150,12 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
           break;
           
         case 'clear':
+        case 'limpar':
           setOutput([]);
           break;
           
         case 'history':
+        case 'historico':
           const historyText = commandHistory
             .map((cmd, i) => `${i + 1}. ${cmd.command}`)
             .join('\n');
@@ -162,12 +165,38 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
             timestamp: Date.now()
           });
           break;
+
+        // Comandos universais diretos
+        case '1':
+          await gameEngine.executeCommand([1]);
+          break;
+        case '2':
+          await gameEngine.executeCommand([2]);
+          break;
+        case '3':
+          await gameEngine.executeCommand([3]);
+          break;
+        case '4':
+          await gameEngine.executeCommand([4]);
+          break;
+
+        // Comandos por nome (para compatibilidade)
+        case 'explorar':
+          await gameEngine.executeCommand([1]);
+          break;
+        case 'inventario':
+          await gameEngine.executeCommand([2]);
+          break;
+        case 'sair':
+          await gameEngine.executeCommand([4]);
+          break;
           
         default:
-          // Tenta executar como comando do jogo
-          try {
-            await gameEngine.executeCommand(cmd);
-          } catch {
+          // Tenta processar como combinação de números
+          const numbers = cmd.split('').map(c => parseInt(c)).filter(n => !isNaN(n) && n >= 1 && n <= 4);
+          if (numbers.length > 0) {
+            await gameEngine.executeCommand(numbers as any);
+          } else {
             addOutput({
               type: 'text',
               content: `Comando não reconhecido: ${cmd}. Digite "help" para ver comandos disponíveis.`,

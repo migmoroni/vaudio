@@ -1,81 +1,157 @@
 # VAudio Game Engine & Platform
 
-Uma game engine e plataforma para jogos de texto/áudio interativos com suporte a múltiplos dispositivos de entrada e modos de interação.
+Uma game engine e plataforma para jogos de texto/áudio interativos com arquitetura agnóstica e sistema de comandos universais.
 
 ## 🎮 Sobre o Projeto
 
 O VAudio é uma game engine moderna projetada para jogos de texto e áudio, oferecendo:
 
-- **Sistema de Input Unificado**: Suporte para teclado, mouse, controles de videogame, toque na tela e comandos de voz
-- **Arquitetura Compartilhada**: Core da engine compartilhado entre diferentes plataformas (Desktop, Web, Mobile)
+- **Sistema de Comandos Universais**: A engine trabalha apenas com comandos [1], [2], [3], [4] e suas combinações
+- **Arquitetura Agnóstica**: A engine não sabe nem precisa saber qual dispositivo de entrada foi usado
+- **Separação Clara de Responsabilidades**: Input Processor → Comandos Universais → Game Engine
 - **Múltiplos Modos de Interação**: Terminal console e interface visual/tátil
-- **Sistema de Botões Virtuais**: 4 botões posicionados nos cantos da tela para interação universal
+- **Arquitetura Compartilhada**: Core da engine compartilhado entre diferentes plataformas
 
-## 🏗️ Arquitetura
+## 🏗️ Nova Arquitetura Simplificada
 
 ```
-├── shared/                 # Código compartilhado
-│   ├── src/
-│   │   ├── types.ts       # Tipos TypeScript
-│   │   ├── game-engine.ts # Core da game engine
-│   │   ├── input-processor.ts # Processador de comandos
-│   │   └── engine.ts      # Exports principais
-│   └── components/        # Componentes compartilhados
-├── apps/
-│   ├── desktop/          # App Tauri para desktop
-│   ├── web/              # App web com Vite
-│   └── mobile/           # App React Native/Expo
+shared/src/
+├── types/                  # Tipos TypeScript organizados
+│   ├── engine.ts          # Tipos da game engine
+│   ├── input.ts           # Tipos do sistema de input
+│   └── index.ts           # Re-exports
+├── engine/                # Core da game engine
+│   ├── VGameEngine.ts     # Implementação principal
+│   └── index.ts           # Exports da engine
+├── input/                 # Processador de input
+│   ├── InputProcessor.ts  # Converte inputs para comandos universais
+│   └── index.ts           # Exports do input
+└── index.ts               # Entry point principal
 ```
 
-## 🎯 Sistema de Input
+## 🎯 Sistema de Comandos Universais
 
-### Mapeamento de Botões Virtuais
+### Conceito Central
 
-O sistema utiliza 4 botões virtuais posicionados nos cantos da tela:
+A **game engine é completamente agnóstica** ao tipo de input. Ela apenas recebe:
 
-- **Botão 1 (TOP_LEFT)**: Canto superior esquerdo
-- **Botão 2 (TOP_RIGHT)**: Canto superior direito  
-- **Botão 3 (BOTTOM_LEFT)**: Canto inferior esquerdo
-- **Botão 4 (BOTTOM_RIGHT)**: Canto inferior direito
+- **Comandos individuais**: `[1]`, `[2]`, `[3]`, `[4]`
+- **Combinações**: `[1,2]`, `[2,3,4]`, `[1,2,3,4]`
 
-### Mapeamento de Teclado
+### Fluxo de Dados
 
-| Tecla | Botão Virtual | Descrição |
-|-------|---------------|-----------|
-| W, 1, ↑ | Botão 1 | Top Left |
-| E, 2, → | Botão 2 | Top Right |
-| S, 3, ↓ | Botão 3 | Bottom Left |
-| D, 4, ← | Botão 4 | Bottom Right |
+```
+Dispositivo de Entrada → Input Processor → Comandos Universais → Game Engine
+     (Teclado)              (Traduz)           ([1],[2],[3],[4])      (Executa)
+     (Mouse)                (Mapeia)           (Combinações)          (Processa)
+     (Gamepad)              (Converte)         (Arrays simples)       (Responde)
+     (Toque)
+     (Voz)
+```
+
+### Mapeamento de Entrada (Input Processor)
+
+| Dispositivo | Entrada | Comando Universal |
+|-------------|---------|-------------------|
+| Teclado | W, 1, ↑ | `[1]` |
+| Teclado | E, 2, → | `[2]` |  
+| Teclado | S, 3, ↓ | `[3]` |
+| Teclado | D, 4, ← | `[4]` |
+| Mouse | Clique canto superior esquerdo | `[1]` |
+| Gamepad | Botão X | `[1]` |
+| Toque | Toque canto superior esquerdo | `[1]` |
+| Voz | "Um" | `[1]` |
+
+## 🎮 Como a Engine Funciona
+
+### 1. Registrar Ações Globais
+
+```typescript
+const action: GameAction = {
+  id: 'explorar',
+  name: 'Explorar',
+  description: 'Vai para área de exploração',
+  commands: [[1]], // Responde ao comando [1]
+  action: async (context) => {
+    await context.engine.changeScene('explore');
+  }
+};
+
+engine.registerAction(action);
+```
+
+### 2. Definir Cenas com Escolhas
+
+```typescript
+const scene: GameScene = {
+  id: 'menu',
+  title: 'Menu Principal',
+  description: 'Escolha uma opção:',
+  choices: [
+    {
+      id: 'start',
+      text: 'Iniciar Jogo',
+      commands: [[1]], // Comando [1] para esta escolha
+      action: async (context) => {
+        await context.engine.changeScene('game');
+      }
+    },
+    {
+      id: 'quit',
+      text: 'Sair',
+      commands: [[4]], // Comando [4] para sair
+      action: async (context) => {
+        await context.engine.stop();
+      }
+    }
+  ]
+};
+```
+
+### 3. Executar Comandos
+
+```typescript
+// A engine recebe apenas comandos universais
+await engine.executeCommand([1]);       // Comando simples
+await engine.executeCommand([1, 2]);    // Combinação de dois
+await engine.executeCommand([1,2,3,4]); // Combinação de quatro (ajuda)
+```
 
 ## 🖥️ Modo Terminal Console
 
-O modo terminal console oferece interação baseada em texto com:
+O terminal console oferece interação baseada em texto com suporte aos comandos universais:
 
-- **Comandos do Sistema**:
-  - `help` - Lista comandos disponíveis
-  - `status` - Mostra estado atual do jogo
-  - `start` - Inicia a game engine
-  - `stop` - Para a game engine
-  - `debug` - Informações de debug
-  - `clear` - Limpa o terminal
-  - `history` - Histórico de comandos
+### Comandos do Sistema
 
-- **Recursos**:
-  - Histórico de comandos (↑/↓ para navegar)
-  - Auto-scroll para novos outputs
-  - Indicador de status da engine
-  - Timestamps nos outputs
-  - Cores diferenciadas por tipo de conteúdo
+- `help` ou `ajuda` → Executa `[1,2,3,4]` (ajuda do sistema)
+- `status` → Executa `[2,3,4]` (status do jogo)
+- `start` → Inicia a game engine
+- `stop` → Para a game engine
+- `debug` → Mostra informações de debug
+- `clear` → Limpa o terminal
+
+### Comandos Universais Diretos
+
+- `1` → Executa `[1]`
+- `2` → Executa `[2]`
+- `3` → Executa `[3]`
+- `4` → Executa `[4]`
+- `12` → Executa `[1,2]`
+- `123` → Executa `[1,2,3]`
+
+### Comandos por Nome (Compatibilidade)
+
+- `explorar` → Executa `[1]`
+- `inventario` → Executa `[2]`
+- `sair` → Executa `[4]`
 
 ## 🚀 Como Executar
-
-### Desktop (Tauri)
 
 ```bash
 # Instalar dependências
 pnpm install
 
-# Executar em desenvolvimento
+# Executar desktop em desenvolvimento
 cd apps/desktop
 npm run dev
 
@@ -83,110 +159,60 @@ npm run dev
 npm run build
 ```
 
-### Web
-
-```bash
-cd apps/web
-npm run dev
-```
-
-### Mobile
-
-```bash
-cd apps/mobile
-npm run start
-```
-
 ## 🎮 Jogo de Exemplo
 
-O projeto inclui um jogo de exemplo demonstrando:
+O projeto inclui um jogo de exemplo que demonstra:
 
-- Sistema de cenas interativas
-- Comandos personalizados
-- Gerenciamento de estado
-- Sistema de pontuação
-- Inventário de itens
-- Navegação entre cenas
+- **Sistema de comandos universais** funcionando
+- **Ações globais** que funcionam em qualquer cena
+- **Escolhas por cena** com comandos específicos
+- **Combinações especiais** para funções do sistema
+- **Gerenciamento de estado** e navegação entre cenas
 
-### Comandos do Jogo de Exemplo
+### Ações Globais do Jogo
 
-- `explorar` ou Botão 1 - Ir para área de exploração
-- `inventario` ou Botão 2 - Ver inventário
-- `ajuda` ou Botão 3 - Mostrar ajuda
-- `sair` ou Botão 4 - Sair do jogo
-- `1`, `2`, `3`, `4` - Escolher opções numeradas nas cenas
+- `[1]` - Explorar (vai para cena de exploração)
+- `[2]` - Inventário (mostra itens do jogador)
+- `[3]` - Ajuda personalizada do jogo
+- `[4]` - Sair do jogo
 
-## 🔧 Desenvolvimento
+### Combinações Especiais
 
-### Estrutura de uma Cena
+- `[1,2,3,4]` - Ajuda do sistema (lista todas as ações)
+- `[2,3,4]` - Status do jogo (estado atual)
 
-```typescript
-const scene: GameScene = {
-  id: 'exemplo',
-  title: 'Título da Cena',
-  description: 'Descrição detalhada...',
-  choices: [
-    {
-      id: 'opcao1',
-      text: 'Primeira opção',
-      action: async (context) => {
-        // Lógica da ação
-      }
-    }
-  ],
-  onEnter: async (context) => {
-    // Executado ao entrar na cena
-  },
-  onExit: async (context) => {
-    // Executado ao sair da cena
-  }
-};
-```
+## 🔧 Vantagens da Nova Arquitetura
 
-### Registrar Comandos Personalizados
+### ✅ **Simplicidade**
+- Engine só precisa entender números de 1 a 4
+- Não há complexidade de tipos de dispositivos
+- Código mais limpo e focado
 
-```typescript
-engine.registerCommand({
-  id: 'meu_comando',
-  name: 'Meu Comando',
-  description: 'Descrição do comando',
-  combinations: [
-    { buttons: [ButtonType.TOP_LEFT] }
-  ],
-  action: async (context) => {
-    // Lógica do comando
-  }
-});
-```
+### ✅ **Flexibilidade**
+- Qualquer dispositivo pode ser mapeado facilmente
+- Combinações ilimitadas possíveis
+- Fácil de estender com novos tipos de input
 
-### Sistema de Eventos
+### ✅ **Agnóstica**
+- Engine não sabe se foi teclado, mouse, ou voz
+- Input Processor faz toda a tradução
+- Separação perfeita de responsabilidades
 
-```typescript
-// Escutar eventos da engine
-engine.on('scene:changed', (data) => {
-  console.log('Cena mudou:', data);
-});
-
-engine.on('game:output', (output) => {
-  console.log('Novo output:', output);
-});
-```
+### ✅ **Robusta**
+- Sistema simples é menos propenso a bugs
+- Fácil de testar e debugar
+- Manutenção simplificada
 
 ## 🎨 Próximas Funcionalidades
 
+- [ ] Interface visual com botões nos 4 cantos
 - [ ] Suporte completo a controles de videogame
 - [ ] Sistema de comandos de voz
-- [ ] Interface visual/tátil
 - [ ] Sistema de áudio integrado
 - [ ] Save/Load de estados de jogo
-- [ ] Multiplayer básico
 - [ ] Editor visual de jogos
 - [ ] Plugins e extensões
 
 ## 📝 Licença
 
 Este projeto está licenciado sob a licença MIT.
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Por favor, veja o arquivo CONTRIBUTING.md para detalhes sobre como contribuir para este projeto.
