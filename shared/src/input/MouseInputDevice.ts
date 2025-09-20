@@ -6,7 +6,7 @@ import { UniversalCommand } from '../types/engine';
  * Interface para dados de entrada do mouse
  */
 export interface MouseInputData {
-  button?: number; // 0=left, 1=middle, 2=right
+  button?: number; // 0=left, 1=middle, 2=right, 3=back, 4=forward
   x?: number;
   y?: number;
   deltaX?: number;
@@ -29,10 +29,14 @@ export class MouseInputDevice extends BaseInputDevice {
 
   getDefaultMappings(): InputMapping[] {
     return [
-      // Botões do mouse
+      // Botões do mouse principais
       { device: InputDevice.MOUSE, trigger: 0, command: 1 }, // Botão esquerdo
       { device: InputDevice.MOUSE, trigger: 2, command: 2 }, // Botão direito
       { device: InputDevice.MOUSE, trigger: 1, command: 3 }, // Botão do meio
+      
+      // Botões adicionais (se disponíveis)
+      { device: InputDevice.MOUSE, trigger: 3, command: 4 }, // Botão voltar/back
+      { device: InputDevice.MOUSE, trigger: 4, command: 2 }, // Botão avançar/forward
       
       // Scroll wheel
       { device: InputDevice.MOUSE, trigger: 'wheel_up', command: 1 },
@@ -175,6 +179,27 @@ export class MouseInputDevice extends BaseInputDevice {
   }
 
   /**
+   * Processa botão voltar (button 3)
+   */
+  processBackButton(): UniversalCommand[] {
+    return this.processMouseClick(3);
+  }
+
+  /**
+   * Processa botão avançar (button 4)
+   */
+  processForwardButton(): UniversalCommand[] {
+    return this.processMouseClick(4);
+  }
+
+  /**
+   * Verifica se o mouse tem botões adicionais configurados
+   */
+  hasExtraButtons(): boolean {
+    return this.mappings.has(3) || this.mappings.has(4);
+  }
+
+  /**
    * Adiciona mapeamento para botão específico
    */
   addButtonMapping(button: number, command: UniversalCommand): void {
@@ -203,11 +228,12 @@ export class MouseInputDevice extends BaseInputDevice {
       deviceType: this.deviceType,
       sensitivity: this.sensitivity,
       lastPosition: this.lastPosition,
+      hasExtraButtons: this.hasExtraButtons(),
       totalMappings: this.mappings.size,
       mappings: Array.from(this.mappings.entries()).map(([trigger, command]) => ({
         trigger,
         command,
-        type: typeof trigger === 'number' ? 'button' : 'gesture'
+        type: typeof trigger === 'number' ? this.getButtonName(trigger as number) : 'gesture'
       }))
     };
   }
@@ -231,5 +257,19 @@ export class MouseInputDevice extends BaseInputDevice {
    */
   getCommandForButton(button: number): UniversalCommand | undefined {
     return this.mappings.get(button);
+  }
+
+  /**
+   * Obtém nome descritivo de um botão
+   */
+  private getButtonName(button: number): string {
+    switch (button) {
+      case 0: return 'left_button';
+      case 1: return 'middle_button';
+      case 2: return 'right_button';
+      case 3: return 'back_button';
+      case 4: return 'forward_button';
+      default: return `button_${button}`;
+    }
   }
 }

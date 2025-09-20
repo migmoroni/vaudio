@@ -102,11 +102,18 @@ D, 4, ←, Numpad4 → Comando 4
 
 #### Mouse:
 ```typescript
-Botão Esquerdo → Comando 1
-Botão Direito → Comando 2
-Botão Meio → Comando 3
+Botão Esquerdo (0) → Comando 1
+Botão Direito (2) → Comando 2
+Botão Meio (1) → Comando 3
+Botão Voltar (3) → Comando 1
+Botão Avançar (4) → Comando 2
 Scroll Up/Down → Comando 1/3
 ```
+
+**Suporte para Mouses de 5 Botões:**
+- Botões padrão: Esquerdo, Meio, Direito
+- Botões adicionais: Voltar (Back/Button 3), Avançar (Forward/Button 4)
+- Totalmente compatível com mouses gaming
 
 #### Gamepad:
 ```typescript
