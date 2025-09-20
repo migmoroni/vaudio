@@ -2,7 +2,7 @@ export * from './constants';
 export * from './utils';
 
 // Re-export específicos para evitar conflitos
-export { VGameEngine } from './engine';
+export { VGameEngine } from './engine/VGameEngine';
 export type { 
   GameEngine, 
   GameContext, 

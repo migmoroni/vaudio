@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { VGameEngine } from '../../../shared/src/engine';
+import { VGameEngine } from '../../../shared/src/engine/VGameEngine';
 import TerminalConsole from './components/TerminalConsole';
 import { createSampleGame } from './game/sampleGame';
 
