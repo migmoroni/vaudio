@@ -1,218 +1,226 @@
 import { 
   InputDevice, 
-  InputMapping, 
-  InputProcessorConfig, 
-  RawInputEvent 
+  InputMapping
 } from '../types/input';
-import { 
-  UniversalCommand, 
-  EngineInput 
-} from '../types/engine';
 import { IInputDevice } from './BaseInputDevice';
 import { KeyboardInputDevice } from './KeyboardInputDevice';
 import { MouseInputDevice } from './MouseInputDevice';
 import { GamepadInputDevice } from './GamepadInputDevice';
 import { TouchInputDevice } from './TouchInputDevice';
 import { VoiceInputDevice } from './VoiceInputDevice';
+import { CommandProcessor, CommandCallback } from './CommandProcessor';
+import { GameCommand, CommandEvent } from './CommandTypes';
 
+/**
+ * Configuração do InputProcessor atualizada
+ */
+export interface InputProcessorConfig {
+  mappings?: InputMapping[];
+  combinationTimeout?: number;
+  enableCombinations?: boolean;
+  debugMode?: boolean;
+}
+
+/**
+ * Processador principal de entrada que coordena todos os dispositivos
+ * e converte entradas em comandos de jogo (strings)
+ */
 export class InputProcessor {
   private config: InputProcessorConfig;
-  private pendingCommands: UniversalCommand[] = [];
-  private combinationTimer: NodeJS.Timeout | null = null;
-  private lastInputTime: number = 0;
+  private commandProcessor: CommandProcessor;
   
   // Dispositivos especializados
   private devices: Map<InputDevice, IInputDevice> = new Map();
+  
+  // Callbacks para comandos processados
+  private commandCallbacks: CommandCallback[] = [];
 
-  constructor(config?: Partial<InputProcessorConfig>) {
+  constructor(config?: InputProcessorConfig) {
     this.config = {
       mappings: [],
       combinationTimeout: 500, // 500ms para combinações
       enableCombinations: true,
+      debugMode: false,
       ...config
     };
 
+    // Inicializa processador de comandos
+    this.commandProcessor = new CommandProcessor({
+      combinationTimeout: this.config.combinationTimeout,
+      enableCombinations: this.config.enableCombinations,
+      debugMode: this.config.debugMode
+    });
+
     // Inicializa dispositivos especializados
     this.initializeDevices();
+    
+    // Conecta processador de comandos aos callbacks
+    this.commandProcessor.onCommand((commandEvent) => {
+      this.notifyCommandCallbacks(commandEvent);
+    });
+  }
+
+  /**
+   * Registra callback para receber comandos processados
+   */
+  onCommand(callback: CommandCallback): void {
+    this.commandCallbacks.push(callback);
+  }
+
+  /**
+   * Remove callback
+   */
+  removeCommandCallback(callback: CommandCallback): void {
+    const index = this.commandCallbacks.indexOf(callback);
+    if (index > -1) {
+      this.commandCallbacks.splice(index, 1);
+    }
   }
 
   /**
    * Inicializa dispositivos especializados
    */
   private initializeDevices(): void {
+    // Filtra mapeamentos por dispositivo
+    const keyboardMappings = this.config.mappings?.filter(m => m.device === InputDevice.KEYBOARD);
+    const mouseMappings = this.config.mappings?.filter(m => m.device === InputDevice.MOUSE);
+    const gamepadMappings = this.config.mappings?.filter(m => m.device === InputDevice.GAMEPAD);
+    const touchMappings = this.config.mappings?.filter(m => m.device === InputDevice.TOUCH);
+    const voiceMappings = this.config.mappings?.filter(m => m.device === InputDevice.VOICE);
+
     // Cria dispositivos com mapeamentos personalizados se fornecidos
-    const keyboardMappings = this.config.mappings.filter(m => m.device === InputDevice.KEYBOARD);
-    const mouseMappings = this.config.mappings.filter(m => m.device === InputDevice.MOUSE);
-    const gamepadMappings = this.config.mappings.filter(m => m.device === InputDevice.GAMEPAD);
-    const touchMappings = this.config.mappings.filter(m => m.device === InputDevice.TOUCH);
-    const voiceMappings = this.config.mappings.filter(m => m.device === InputDevice.VOICE);
-
-    this.devices.set(InputDevice.KEYBOARD, new KeyboardInputDevice(keyboardMappings.length > 0 ? keyboardMappings : undefined));
-    this.devices.set(InputDevice.MOUSE, new MouseInputDevice(mouseMappings.length > 0 ? mouseMappings : undefined));
-    this.devices.set(InputDevice.GAMEPAD, new GamepadInputDevice(gamepadMappings.length > 0 ? gamepadMappings : undefined));
-    this.devices.set(InputDevice.TOUCH, new TouchInputDevice(touchMappings.length > 0 ? touchMappings : undefined));
-    this.devices.set(InputDevice.VOICE, new VoiceInputDevice(voiceMappings.length > 0 ? voiceMappings : undefined));
+    this.devices.set(InputDevice.KEYBOARD, new KeyboardInputDevice(keyboardMappings?.length ? keyboardMappings : undefined));
+    this.devices.set(InputDevice.MOUSE, new MouseInputDevice(mouseMappings?.length ? mouseMappings : undefined));
+    this.devices.set(InputDevice.GAMEPAD, new GamepadInputDevice(gamepadMappings?.length ? gamepadMappings : undefined));
+    this.devices.set(InputDevice.TOUCH, new TouchInputDevice(touchMappings?.length ? touchMappings : undefined));
+    this.devices.set(InputDevice.VOICE, new VoiceInputDevice(voiceMappings?.length ? voiceMappings : undefined));
   }
 
   /**
-   * Processa uma entrada bruta e retorna comandos universais
+   * Processa entrada de teclado
    */
-  processRawInput(rawInput: RawInputEvent): EngineInput[] {
-    const commands = this.mapRawInputToCommands(rawInput);
-    const results: EngineInput[] = [];
-
-    for (const command of commands) {
-      if (this.config.enableCombinations) {
-        // Adiciona à combinação pendente
-        this.pendingCommands.push(command);
-        this.lastInputTime = rawInput.timestamp;
-
-        // Cancela timer anterior
-        if (this.combinationTimer) {
-          clearTimeout(this.combinationTimer);
-        }
-
-        // Define timer para executar combinação
-        this.combinationTimer = setTimeout(() => {
-          if (this.pendingCommands.length > 0) {
-            results.push({
-              command: [...this.pendingCommands],
-              timestamp: this.lastInputTime
-            });
-            this.pendingCommands = [];
-          }
-        }, this.config.combinationTimeout);
-
-      } else {
-        // Modo sem combinações - executa comando individual imediatamente
-        results.push({
-          command: [command],
-          timestamp: rawInput.timestamp
-        });
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * Processa entrada de teclado diretamente
-   */
-  processKeyboardInput(key: string): EngineInput[] {
+  processKeyboardInput(key: string, modifiers?: {
+    ctrlKey?: boolean;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+  }): void {
     const keyboardDevice = this.devices.get(InputDevice.KEYBOARD);
-    if (!keyboardDevice) return [];
+    if (!keyboardDevice) return;
 
-    const commands = keyboardDevice.processInput({ key: key.toLowerCase() });
-    return this.wrapCommandsInEngineInput(commands);
+    const inputData = {
+      key: key.toLowerCase(),
+      ...modifiers
+    };
+
+    const commands = keyboardDevice.processInput(inputData);
+    if (commands && commands.length > 0) {
+      // Processa primeiro comando válido
+      this.commandProcessor.processInput(commands[0], 'keyboard', inputData);
+    }
   }
 
   /**
-   * Processa entrada de mouse diretamente
+   * Processa entrada de mouse
    */
-  processMouseInput(button?: number, x?: number, y?: number, wheel?: number): EngineInput[] {
+  processMouseInput(data: {
+    button?: number;
+    x?: number;
+    y?: number;
+    deltaX?: number;
+    deltaY?: number;
+    wheelDelta?: number;
+  }): void {
     const mouseDevice = this.devices.get(InputDevice.MOUSE);
-    if (!mouseDevice) return [];
-
-    const data: any = {};
-    if (button !== undefined) data.button = button;
-    if (x !== undefined && y !== undefined) {
-      data.x = x;
-      data.y = y;
-    }
-    if (wheel !== undefined) data.wheel = wheel;
+    if (!mouseDevice) return;
 
     const commands = mouseDevice.processInput(data);
-    return this.wrapCommandsInEngineInput(commands);
+    if (commands && commands.length > 0) {
+      // Processa primeiro comando válido
+      this.commandProcessor.processInput(commands[0], 'mouse', data);
+    }
   }
 
   /**
-   * Processa entrada de gamepad diretamente
+   * Processa entrada de gamepad
    */
-  processGamepadInput(button?: number, axis?: number, axisValue?: number): EngineInput[] {
+  processGamepadInput(data: {
+    button?: number;
+    axis?: number;
+    axisValue?: number;
+    pressed?: boolean;
+  }): void {
     const gamepadDevice = this.devices.get(InputDevice.GAMEPAD);
-    if (!gamepadDevice) return [];
-
-    const data: any = {};
-    if (button !== undefined) data.button = button;
-    if (axis !== undefined && axisValue !== undefined) {
-      data.axis = axis;
-      data.axisValue = axisValue;
-    }
+    if (!gamepadDevice) return;
 
     const commands = gamepadDevice.processInput(data);
-    return this.wrapCommandsInEngineInput(commands);
+    if (commands && commands.length > 0) {
+      // Processa primeiro comando válido
+      this.commandProcessor.processInput(commands[0], 'gamepad', data);
+    }
   }
 
   /**
-   * Processa entrada touch diretamente
+   * Processa entrada touch
    */
-  processTouchInput(x: number, y: number, type: string = 'tap'): EngineInput[] {
+  processTouchInput(data: {
+    x: number;
+    y: number;
+    type?: string;
+    force?: number;
+  }): void {
     const touchDevice = this.devices.get(InputDevice.TOUCH);
-    if (!touchDevice) return [];
+    if (!touchDevice) return;
 
-    const commands = touchDevice.processInput({ x, y, type });
-    return this.wrapCommandsInEngineInput(commands);
+    const commands = touchDevice.processInput(data);
+    if (commands && commands.length > 0) {
+      // Processa primeiro comando válido
+      this.commandProcessor.processInput(commands[0], 'touch', data);
+    }
   }
 
   /**
-   * Processa entrada de voz diretamente
+   * Processa entrada de voz
    */
-  processVoiceInput(command: string, confidence?: number): EngineInput[] {
+  processVoiceInput(data: {
+    command: string;
+    confidence?: number;
+  }): void {
     const voiceDevice = this.devices.get(InputDevice.VOICE);
-    if (!voiceDevice) return [];
+    if (!voiceDevice) return;
 
-    const commands = voiceDevice.processInput({ command, confidence });
-    return this.wrapCommandsInEngineInput(commands);
+    const commands = voiceDevice.processInput(data);
+    if (commands && commands.length > 0) {
+      // Processa primeiro comando válido
+      this.commandProcessor.processInput(commands[0], 'voice', data);
+    }
   }
 
   /**
-   * Força a execução da combinação pendente
+   * Força emissão de comando específico
    */
-  flushPendingCommands(): EngineInput | null {
-    if (this.pendingCommands.length > 0) {
-      const result: EngineInput = {
-        command: [...this.pendingCommands],
-        timestamp: this.lastInputTime
-      };
-      
-      this.pendingCommands = [];
-      
-      if (this.combinationTimer) {
-        clearTimeout(this.combinationTimer);
-        this.combinationTimer = null;
+  forceCommand(command: GameCommand): void {
+    this.commandProcessor.forceCommand(command, 'manual');
+  }
+
+  /**
+   * Cancela combinação em andamento
+   */
+  cancelCombination(): void {
+    this.commandProcessor.cancelCombination();
+  }
+
+  /**
+   * Notifica todos os callbacks sobre comando processado
+   */
+  private notifyCommandCallbacks(commandEvent: CommandEvent): void {
+    this.commandCallbacks.forEach(callback => {
+      try {
+        callback(commandEvent);
+      } catch (error) {
+        console.error('[InputProcessor] Erro ao executar callback:', error);
       }
-
-      return result;
-    }
-    return null;
-  }
-
-  /**
-   * Adiciona mapeamento de entrada
-   */
-  addMapping(mapping: InputMapping): void {
-    this.config.mappings.push(mapping);
-    
-    // Atualiza dispositivo correspondente
-    const device = this.devices.get(mapping.device);
-    if (device) {
-      device.addMapping(mapping.trigger, mapping.command);
-    }
-  }
-
-  /**
-   * Remove mapeamento de entrada
-   */
-  removeMapping(device: InputDevice, trigger: string | number): void {
-    this.config.mappings = this.config.mappings.filter(
-      m => !(m.device === device && m.trigger === trigger)
-    );
-    
-    // Atualiza dispositivo correspondente
-    const deviceInstance = this.devices.get(device);
-    if (deviceInstance) {
-      deviceInstance.removeMapping(trigger);
-    }
+    });
   }
 
   /**
@@ -223,63 +231,29 @@ export class InputProcessor {
   }
 
   /**
-   * Obtém configuração atual
-   */
-  getConfig(): InputProcessorConfig {
-    return { ...this.config };
-  }
-
-  /**
-   * Atualiza configuração
-   */
-  updateConfig(updates: Partial<InputProcessorConfig>): void {
-    this.config = { ...this.config, ...updates };
-    
-    // Reinicializa dispositivos se mapeamentos mudaram
-    if (updates.mappings) {
-      this.initializeDevices();
-    }
-  }
-
-  /**
-   * Obtém informações de debug de todos os dispositivos
+   * Obtém informações de debug
    */
   getDebugInfo(): any {
-    const devicesInfo: any = {};
-    
-    for (const [deviceType, device] of this.devices) {
-      devicesInfo[deviceType] = device.getDebugInfo();
-    }
+    const deviceInfo: any = {};
+    this.devices.forEach((device, type) => {
+      const deviceName = type.toString();
+      deviceInfo[deviceName] = device.getDebugInfo();
+    });
 
     return {
       config: this.config,
-      pendingCommands: this.pendingCommands,
-      lastInputTime: this.lastInputTime,
-      devices: devicesInfo
+      commandProcessor: this.commandProcessor.getDebugInfo(),
+      devices: deviceInfo,
+      callbackCount: this.commandCallbacks.length
     };
   }
 
-  // Métodos privados
-
   /**
-   * Converte comandos universais em EngineInput
+   * Cleanup - remove todos os listeners e timers
    */
-  private wrapCommandsInEngineInput(commands: UniversalCommand[]): EngineInput[] {
-    if (commands.length === 0) return [];
-    
-    return commands.map(command => ({
-      command: [command],
-      timestamp: Date.now()
-    }));
-  }
-
-  /**
-   * Mapeia entrada bruta para comandos usando dispositivos especializados
-   */
-  private mapRawInputToCommands(rawInput: RawInputEvent): UniversalCommand[] {
-    const device = this.devices.get(rawInput.device);
-    if (!device) return [];
-
-    return device.processInput(rawInput.data);
+  destroy(): void {
+    this.commandProcessor.destroy();
+    this.commandCallbacks.length = 0;
+    this.devices.clear();
   }
 }

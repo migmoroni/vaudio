@@ -9,5 +9,13 @@ export * from './VoiceInputDevice';
 // Processador principal
 export * from './InputProcessor';
 
-// Tipos de input
-export * from '../types/input';
+// Sistema de comandos
+export * from './CommandProcessor';
+export * from './CommandTypes';
+
+// Tipos de input (sem conflitos)
+export type { 
+  InputDevice, 
+  InputMapping, 
+  RawInputEvent 
+} from '../types/input';

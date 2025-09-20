@@ -19,10 +19,15 @@ export type {
   TerminalCommand
 } from './types/engine';
 
-export { InputProcessor } from './input';
+export { 
+  InputProcessor,
+  CommandProcessor,
+  type GameCommand,
+  type CommandEvent,
+  type CommandCallback
+} from './input';
 export type { 
   InputDevice, 
   InputMapping, 
-  InputProcessorConfig, 
-  RawInputEvent 
+  InputProcessorConfig
 } from './types/input';

@@ -1,5 +1,19 @@
 # VAudio Input System - Arquitetura Componentizada
 
+## 🎯 **Nova Arquitetura de Comandos**
+
+O sistema de input agora gera **8 comandos possíveis como strings**, interpretados pela engine baseado no contexto:
+
+### **📋 Comandos Disponíveis:**
+- **Individuais**: `"1"`, `"2"`, `"3"`, `"4"`
+- **Combinados**: `"1+2"`, `"1+4"`, `"3+2"`, `"3+4"`
+
+### **🔄 Fluxo de Interpretação:**
+```
+[Input Device] → [Command Processor] → [Engine] → [Context Handler]
+    Mouse/Key       String Commands      Game Logic    Menu/Game/Shop
+```
+
 ## Visão Geral
 
 O sistema de input da VAudio foi completamente refatorado para uma arquitetura modular e componentizada, onde cada tipo de dispositivo de entrada tem sua própria implementação especializada.
@@ -12,12 +26,17 @@ O sistema de input da VAudio foi completamente refatorado para uma arquitetura m
 input/
 ├── index.ts                    # Exports centralizados
 ├── InputProcessor.ts           # Processador principal (coordenador)
+├── CommandProcessor.ts         # Processador de comandos e combinações
+├── CommandTypes.ts             # Tipos e definições de comandos
+├── GameCommandInterpreter.ts   # Exemplo de interpretação por contexto
 ├── BaseInputDevice.ts          # Interface e classe base
 ├── KeyboardInputDevice.ts      # Dispositivo de teclado
-├── MouseInputDevice.ts         # Dispositivo de mouse
+├── MouseInputDevice.ts         # Dispositivo de mouse (5 botões)
 ├── GamepadInputDevice.ts       # Dispositivo de gamepad
 ├── TouchInputDevice.ts         # Dispositivo touch/tela sensível
-└── VoiceInputDevice.ts         # Dispositivo de comandos de voz
+├── VoiceInputDevice.ts         # Dispositivo de comandos de voz
+├── README.md                   # Documentação técnica
+└── USAGE.md                    # Guia de uso prático
 ```
 
 ## Componentes Especializados
