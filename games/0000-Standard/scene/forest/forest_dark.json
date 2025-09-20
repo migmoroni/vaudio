@@ -1,0 +1,58 @@
+{
+    "type": "scene",
+    "id": "forest_dark",
+    "title": "Caminho Escuro",
+    "description": "Você segue pelo caminho escuro, sentindo-se cada vez mais apreensivo.",
+    "effects": [
+        { "action": "temporary", "attribute": "viewing_distance", "operation": "-", "value": 2 }
+    ],
+    "choice": {
+        "1": [
+            {
+                "if": [
+                    {
+                        "condition": { "attribute": "viewing_distance", "operator": ">=", "value": 2 },
+                        "result": {
+                            "text": "Com a tocha acesa, você vê um rio à frente e decide segui-lo",
+                            "goto": "scene/forest/forest_river.json"
+                        }
+                    },
+                    {
+                        "condition": { "attribute": "viewing_distance", "operator": "<", "value": 2 },
+                        "result": {
+                            "text": "Sem iluminação suficiente, você não vê nada.",
+                            "choice": {
+                                "1": [
+                                    {
+                                        "text": "Tentar voltar para a entrada",
+                                        "goto": "scene/forest/forest_entry.json"
+                                    },
+                                    {
+                                        "text": "Continuar andando no escuro",
+                                        "goto": "scene/forest/forest_fall.json"
+                                    }
+                                ],
+                                "2": [
+                                    {
+                                        "text": "Você decide...",
+                                        "do": "action/use_torch.json"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "text": "Voltar para a entrada",
+                "goto": "scene/forest/forest_entry.json"
+            }
+        ],
+        "2": [
+            {
+                "text": "Você decide...",
+                "do": "action/use_torch.json"
+            }
+        ]
+    }
+}

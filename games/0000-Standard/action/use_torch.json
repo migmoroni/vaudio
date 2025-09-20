@@ -1,0 +1,24 @@
+{
+    "type": "action",
+    "id": "torch",
+    "if": [
+        {
+            "condition": { "item": "torch", "operation": "==", "value": "out" },
+            "result": {
+                "description": "Acender a tocha",
+                "effects": [
+                    { "action": "modify", "item": "torch", "value": "lit" }
+                ]
+            }
+        },
+        {
+            "condition": { "item": "torch", "operation": "==", "value": "lit" },
+            "result": {
+                "description": "Apagar a tocha",
+                "effects": [
+                    { "action": "modify", "item": "torch", "value": "out" }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "forest_entry",
+  "title": "Entrada da Floresta",
+  "description": "Você entra em uma floresta escura e sente um arrepio percorrer sua espinha.",
+
+  "choice": {
+    "1": [
+      {
+        "text": "Seguir caminho iluminado",
+        "goto": "scene/forest/forest_light.json"
+      },
+      {
+        "text": "Seguir caminho escuro",
+        "goto": "scene/forest/forest_dark.json"
+      }
+    ],
+    "2": [
+      {
+        "text": "Ascende uma tocha",
+        "do": "action/torch_light.json"
+      }
+    ]
+  }
+}

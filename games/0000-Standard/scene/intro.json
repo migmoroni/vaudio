@@ -1,0 +1,17 @@
+{
+    "id": "intro",
+    "title": "Introdução",
+    "description": "Bem-vindo ao jogo! Sua aventura começa aqui. Você está em uma encruzilhada com dois caminhos à sua frente.",
+    "choices": {
+        "1": [
+        {
+            "text": "Seguir pela floresta",
+            "goto": "scene/forest/forest_entry.json"
+        },
+        {
+            "text": "Nao seguir e ficar onde está",
+            "goto": "scene/stay_here.json"
+        }
+    ]
+}         
+}

@@ -1,0 +1,12 @@
+{
+    "type": "item",
+    "id": "torch",
+    "value": {
+        "lit": {
+            "effects": [
+                { "action": "temporary", "attribute": "viewing_distance", "operation": "+", "value": 2 }
+            ]
+        },
+        "out": {}
+    }
+}

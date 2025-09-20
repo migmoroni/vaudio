@@ -1,0 +1,18 @@
+{
+    "id": "forest_light",
+    "title": "Caminho Iluminado",
+    "description": "Você segue pelo caminho iluminado, sentindo-se mais seguro a cada passo.",
+
+    "choice": {
+        "1": [
+            {
+                "text": "Continuar andando",
+                "goto": "scene/forest/forest_clearing.json"
+            },
+            {
+                "text": "Voltar para a entrada",
+                "goto": "scene/forest/forest_entry.json"
+            }
+        ]
+    }
+}
