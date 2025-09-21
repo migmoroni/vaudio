@@ -1,0 +1,45 @@
+{
+    "id": "menu",
+    "class": "initial",
+    "family": "program",
+    "description": "The initial menu program that runs at startup.",
+    "choice": {
+        "1": {
+            "label": "About",
+            "goto": "@/about/menu.json"
+        },
+        "2": {
+            "label": "Programs",
+            "choice": {
+                "1": {
+                    "label": "Game",
+                    "goto": "@/game/menu.json"
+                },
+                "2": {
+                    "label": "Store",
+                    "goto": "@/store/menu.json"
+                },
+                "3": {
+                    "label": "Editor",
+                    "goto": "@/editor/menu.json"
+                },
+                "3+4": {
+                    "label": "Return",
+                    "goto": "-"
+                }
+            }
+        },
+        "3": {
+            "label": "Settings",
+            "goto": "@/settings/menu.json"
+        },
+        "4": {
+            "label": "Help",
+            "goto": "@/help/menu.json"
+        },
+        "3+4": {
+            "label": "Exit to Desktop",
+            "goto": "*"
+        }
+    }
+}
