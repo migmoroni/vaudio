@@ -1,0 +1,10 @@
+{
+    "id": "help",
+    "description": "Ajuda e documentação sobre como usar a plataforma vaudio.\n\nComandos básicos:\n- Use as teclas 1-4 para escolhas diretas\n- Use q (1+2) para menu\n- Use w (1+4) para informações\n- Use r (3+4) para repetir ou voltar\n- Use Ctrl+C para sair",
+    "choice": {
+        "3+4": {
+            "label": "Voltar ao menu principal",
+            "goto": "-"
+        }
+    }
+}

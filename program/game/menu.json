@@ -1,0 +1,14 @@
+{
+    "id": "game_menu",
+    "description": "Selecione um jogo para jogar.",
+    "choice": {
+        "1": {
+            "label": "Jogo Standard",
+            "goto": "games/0000-Standard"
+        },
+        "3+4": {
+            "label": "Voltar",
+            "goto": "-"
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "id": "editor",
+    "description": "Editor de jogos - Crie seus próprios jogos de texto.",
+    "choice": {
+        "1": {
+            "label": "Novo jogo",
+            "goto": "@/editor/new.json"
+        },
+        "2": {
+            "label": "Editar jogo existente",
+            "goto": "@/editor/edit.json"
+        },
+        "3+4": {
+            "label": "Voltar",
+            "goto": "-"
+        }
+    }
+}

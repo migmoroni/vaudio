@@ -1,0 +1,14 @@
+{
+    "id": "store",
+    "description": "Loja de jogos e conteúdo adicional.",
+    "choice": {
+        "1": {
+            "label": "Ver jogos disponíveis",
+            "goto": "@/store/games.json"
+        },
+        "3+4": {
+            "label": "Voltar",
+            "goto": "-"
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@vaudio/cli",
+  "version": "1.0.0",
+  "description": "CLI application for vaudio text/audio games",
+  "main": "dist/index.js",
+  "bin": {
+    "vaudio-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaudio/components": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.9.2"
+  }
+}

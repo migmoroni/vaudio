@@ -1,0 +1,19 @@
+{
+    "id": "stay_here",
+    "title": "Permanecer no Local",
+    "description": "Você decide ficar onde está. O tempo passa lentamente e nada acontece. Talvez seja hora de tomar uma decisão mais corajosa.",
+    "choices": {
+        "1": [
+            {
+                "text": "Reconsiderar e ir para a floresta",
+                "goto": "scene/forest/forest_entry.json"
+            }
+        ],
+        "2": [
+            {
+                "text": "Continuar esperando",
+                "goto": "scene/intro.json"
+            }
+        ]
+    }
+}

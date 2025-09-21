@@ -1,0 +1,22 @@
+{
+    "id": "settings",
+    "description": "Configurações da aplicação.",
+    "choice": {
+        "1": {
+            "label": "Idioma",
+            "goto": "@/settings/language.json"
+        },
+        "2": {
+            "label": "Audio",
+            "goto": "@/settings/audio.json"
+        },
+        "3": {
+            "label": "Teclado",
+            "goto": "@/settings/keyboard.json"
+        },
+        "3+4": {
+            "label": "Voltar",
+            "goto": "-"
+        }
+    }
+}

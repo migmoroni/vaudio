@@ -1,0 +1,10 @@
+{
+    "id": "about",
+    "description": "Informações sobre a plataforma vaudio.",
+    "choice": {
+        "3+4": {
+            "label": "Voltar ao menu principal",
+            "goto": "-"
+        }
+    }
+}
