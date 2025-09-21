@@ -1,7 +1,5 @@
 {
     "id": "menu",
-    "class": "initial",
-    "family": "program",
     "description": "The initial menu program that runs at startup.",
     "choice": {
         "1": {
