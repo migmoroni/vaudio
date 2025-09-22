@@ -2,6 +2,10 @@
     "id": "help",
     "description": "Ajuda e documentação sobre como usar a plataforma vaudio.\n\nComandos básicos:\n- Use as teclas 1-4 para escolhas diretas\n- Use q (1+2) para menu\n- Use w (1+4) para informações\n- Use r (3+4) para repetir ou voltar\n- Use Ctrl+C para sair",
     "choice": {
+        "1": {
+            "label": "Botoes e funções",
+            "text": "Durante o uso da plataforma vaudio, você pode utilizar os seguintes botões e funções:\n\n- Teclas 1-4: Permitem fazer escolhas diretas nas opções apresentadas.\n- Tecla q (1+2): Abre o menu ou submenu atual, permitindo navegar pelas opções disponíveis.\n- Tecla w (1+4): Exibe informações adicionais sobre a seção ou opção atual.\n- Tecla e (2+3): Função reservada para futuras implementações ou funcionalidades específicas.\n- Tecla r (3+4): Repete a última ação ou retorna à tela anterior, facilitando a navegação.\n- Ctrl+C: Encerra a aplicação de forma segura, garantindo que todas as operações sejam finalizadas corretamente.\n\nEsses controles foram projetados para proporcionar uma experiência intuitiva e acessível ao usuário, permitindo uma navegação eficiente pela plataforma vaudio."
+        },
         "3+4": {
             "label": "Voltar ao menu principal",
             "goto": "-"

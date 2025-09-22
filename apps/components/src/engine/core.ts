@@ -8,6 +8,7 @@ export class VaudioEngine {
   private renderer: EngineOptions['renderer'];
   private inputHandler: EngineOptions['inputHandler'];
   private running: boolean = false;
+  private messages: any = {};
 
   constructor(options: EngineOptions) {
     this.basePath = options.basePath;
@@ -24,14 +25,32 @@ export class VaudioEngine {
         history: []
       }
     };
+
+    this.loadMessages();
+  }
+
+  private async loadMessages() {
+    try {
+      const configPath = path.join(this.basePath, 'program/config.json');
+      const configData = await fs.readFile(configPath, 'utf-8');
+      const config = JSON.parse(configData);
+      this.messages = config.messages || {};
+    } catch (error) {
+      // Fallback to empty object if config can't be loaded
+      this.messages = { engine: { errors: {}, info: {} } };
+    }
   }
 
   async initialize(): Promise<void> {
-    // Initialize input handler
+    await this.loadMessages();
     await this.inputHandler.initialize();
-
-    // Load initial program
     await this.loadProgram('program/initial/menu.json');
+  }
+
+  async initializeWithProgram(programPath: string): Promise<void> {
+    await this.loadMessages();
+    await this.inputHandler.initialize();
+    await this.loadProgram(programPath);
   }
 
   async start(): Promise<void> {
@@ -69,13 +88,12 @@ export class VaudioEngine {
 
     const choice = this.appState.currentProgram.choice[command.type];
     if (!choice) {
-      await this.renderer.showMessage('Opção não disponível.');
+      const message = this.messages.engine?.errors?.optionNotAvailable || 'Opção não disponível.';
+      await this.renderer.showMessage(message);
       return;
     }
 
-    // Handle sub-menu choices
     if (choice.choice) {
-      // Create temporary sub-program
       const subProgram: Program = {
         id: `${this.appState.currentProgram.id}_submenu`,
         description: `${choice.label} - Escolha uma opção:`,
@@ -86,7 +104,6 @@ export class VaudioEngine {
       return;
     }
 
-    // Handle navigation
     if (choice.goto) {
       await this.handleNavigation(choice.goto);
     }
@@ -115,7 +132,8 @@ export class VaudioEngine {
           // Load game
           await this.loadGame(goto);
         } else {
-          await this.renderer.showMessage(`Navegação não implementada: ${goto}`);
+          const message = this.messages.engine?.errors?.navigationNotImplemented?.replace('{goto}', goto) || `Navegação não implementada: ${goto}`;
+          await this.renderer.showMessage(message);
         }
         break;
     }
@@ -128,7 +146,8 @@ export class VaudioEngine {
       this.appState.currentProgram = JSON.parse(programData) as Program;
       this.appState.mode = 'program';
     } catch (error) {
-      await this.renderer.showMessage(`Erro ao carregar programa: ${programPath}`);
+      const message = this.messages.engine?.errors?.programLoadError?.replace('{path}', programPath) || `Erro ao carregar programa: ${programPath}`;
+      await this.renderer.showMessage(message);
       console.error('Program load error:', error);
     }
   }
@@ -142,13 +161,13 @@ export class VaudioEngine {
       this.appState.currentGame = gameConfig;
       this.appState.mode = 'game';
       
-      // Load entry scene
       if (this.appState.gameState) {
         await this.loadGameScene(gameConfig.entry);
         this.appState.gameState.currentScene = gameConfig.entry;
       }
     } catch (error) {
-      await this.renderer.showMessage(`Erro ao carregar jogo: ${gamePath}`);
+      const message = this.messages.engine?.errors?.gameLoadError?.replace('{path}', gamePath) || `Erro ao carregar jogo: ${gamePath}`;
+      await this.renderer.showMessage(message);
       console.error('Game load error:', error);
     }
   }
@@ -195,20 +214,22 @@ export class VaudioEngine {
         // Just re-render current scene
         break;
       default:
-        await this.renderer.showMessage('Comando não reconhecido.');
+        const message = this.messages.engine?.errors?.commandNotRecognized || 'Comando não reconhecido.';
+        await this.renderer.showMessage(message);
     }
   }
 
   private async handleGameChoice(commandType: CommandType): Promise<void> {
     const scene = await this.loadGameScene(this.appState.gameState!.currentScene);
     if (!scene?.choices?.[commandType]) {
-      await this.renderer.showMessage('Escolha não disponível.');
+      const message = this.messages.engine?.errors?.choiceNotAvailable || 'Escolha não disponível.';
+      await this.renderer.showMessage(message);
       return;
     }
 
     const choices = scene.choices[commandType];
     if (choices && choices.length > 0) {
-      const choice = choices[0]; // For now, take the first choice
+      const choice = choices[0];
       this.appState.gameState!.history.push(scene.id);
       await this.loadGameScene(choice.goto);
     }
@@ -216,17 +237,33 @@ export class VaudioEngine {
 
   private async showGameInfo(): Promise<void> {
     const scene = await this.loadGameScene(this.appState.gameState!.currentScene);
+    const messages = this.messages.engine?.info;
+    
+    const title = messages?.gameInfoTitle || '=== INFORMAÇÕES DO JOGO ===';
+    const gameTitle = messages?.game?.replace('{title}', this.appState.currentGame?.title || '') || `Jogo: ${this.appState.currentGame?.title}`;
+    const currentScene = messages?.currentScene?.replace('{scene}', scene?.title || '') || `Cena atual: ${scene?.title}`;
+    
+    const inventoryItems = this.appState.gameState!.inventory.length > 0 
+      ? this.appState.gameState!.inventory.join(', ') 
+      : (messages?.emptyInventory || 'vazio');
+    const inventory = messages?.inventory?.replace('{items}', inventoryItems) || `Inventário: ${inventoryItems}`;
+    
+    const availableCommands = messages?.availableCommands || 'Comandos disponíveis:';
+    const commandsList = messages?.commandsList || [
+      '1-4: Escolhas diretas',
+      'q (1+2): Voltar ao menu principal',
+      'w (1+4): Informações', 
+      'r (3+4): Repetir cena'
+    ];
+    
     const infoText = `
-=== INFORMAÇÕES DO JOGO ===
-Jogo: ${this.appState.currentGame?.title}
-Cena atual: ${scene?.title}
-Inventário: ${this.appState.gameState!.inventory.length > 0 ? this.appState.gameState!.inventory.join(', ') : 'vazio'}
+${title}
+${gameTitle}
+${currentScene}
+${inventory}
 
-Comandos disponíveis:
-1-4: Escolhas diretas
-q (1+2): Voltar ao menu principal
-w (1+4): Informações
-r (3+4): Repetir cena
+${availableCommands}
+${commandsList.join('\n')}
     `;
     await this.renderer.showMessage(infoText);
   }

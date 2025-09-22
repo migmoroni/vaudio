@@ -1,6 +1,17 @@
 # Vaudio - Plataforma de Jogos de Texto/Audio
 
-Uma plataforma multiplataforma para criar e executar jogos de texto e audio, construída com TypeScript. O sistema é baseado inteiramente em arquivos JSON para configuração de programas e jogos.
+Uma plataforma multiplataforma **100% agnóstica** para criar e executar jogos de texto e audio. O código contém apenas lógica estrutural - todo comportamento, textos e fluxos são definidos por arquivos JSON.
+
+## Filosofia Agnóstica
+
+✅ **Código = Estrutura pura**  
+❌ **Código ≠ Comportamento específico**
+
+O sistema é completamente dirigido por JSON:
+- **Comandos do CLI** → `program/cli/config.json`
+- **Mensagens e textos** → `program/components/messages.json`  
+- **Menus e navegação** → `program/*/menu.json`
+- **Jogos** → `games/*/main.json`
 
 ## Estrutura do Projeto
 
@@ -27,16 +38,17 @@ vaudio/
 ## Status Atual
 
 ✅ **Implementado:**
-- **VaudioEngine**: Engine principal que gerencia programas e jogos
-- **Sistema de Programas JSON**: Todos os menus e funcionalidades baseados em JSON
-- **Menu Inicial**: `program/initial/menu.json` como ponto de entrada
-- **Sistema de input por teclado** com 8 comandos
-- **Renderer para console** que suporta programas e jogos
-- **App CLI funcional** com interface parametrizável
-- **Navegação completa** entre programas e jogos
+- **Sistema 100% Agnóstico**: Código contém apenas lógica estrutural
+- **CLI configurável via JSON**: Comandos, mensagens e comportamento definidos em JSON
+- **VaudioEngine agnóstica**: Engine totalmente dirigida por configuração JSON
+- **Mensagens parametrizáveis**: Todos os textos carregados de arquivos JSON
+- **Navegação configurável**: Fluxos definidos nos JSONs dos programas
+- **Renderer agnóstico**: Interface configurada via JSON
+- **Sistema de input estrutural** com 8 comandos mapeáveis
+- **Suporte total a customização** sem tocar no código
 
 🔄 **Em desenvolvimento:**
-- Apps Desktop, Mobile e Web
+- Apps Desktop, Mobile e Web (mesma arquitetura agnóstica)
 
 ## Como Usar
 

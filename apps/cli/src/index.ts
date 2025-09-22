@@ -2,80 +2,96 @@
 
 const { VaudioEngine, KeyboardInputHandler, ConsoleRenderer } = require('@vaudio/components');
 const path = require('path');
+const fs = require('fs');
 
-// Simple command line argument parsing
+// Load app config
+let config: any = {};
+try {
+    const configPath = path.resolve('./program/config.json');
+    const configData = fs.readFileSync(configPath, 'utf-8');
+    config = JSON.parse(configData);
+} catch (error) {
+    console.error('Error loading config:', error);
+    process.exit(1);
+}
+
+// Parse arguments
 const args = process.argv.slice(2);
 const command = args[0] || 'start';
-const basePath = args[1] || '.';
 
-async function startVaudio(basePathArg: string) {
-    try {
-        console.log('🎮 Iniciando vaudio...');
-        console.log(`Base path: ${basePathArg}`);
-        console.log();
+async function main() {
+    if (command === 'help') {
+        // Load help program like any other program
+        try {
+            console.log(config.messages.starting);
+            const basePath = path.resolve('.');
+            console.log(config.messages.basePath.replace('{path}', basePath));
+            console.log();
 
-        // Resolve the base path
-        const resolvedBasePath = path.resolve(basePathArg);
-        
-        // Create input handler and renderer
-        const inputHandler = new KeyboardInputHandler();
-        const renderer = new ConsoleRenderer();
-        
-        // Create and initialize engine
-        const engine = new VaudioEngine({
-            basePath: resolvedBasePath,
-            renderer,
-            inputHandler
-        });
+            const inputHandler = new KeyboardInputHandler();
+            const renderer = new ConsoleRenderer();
+            
+            const engine = new VaudioEngine({
+                basePath: basePath,
+                renderer,
+                inputHandler
+            });
 
-        await engine.initialize();
-        
-        console.log('✅ Engine inicializada com sucesso!');
-        console.log();
-        
-        // Start the application
-        await engine.start();
-        
-    } catch (error) {
-        console.error('❌ Erro ao executar vaudio:', error);
-        process.exit(1);
+            // Initialize with help program instead of default menu
+            await engine.initializeWithProgram('program/help/menu.json');
+            
+            console.log(config.messages.initialized);
+            console.log();
+            
+            await engine.start();
+            
+        } catch (error) {
+            console.error(config.messages.error, error);
+            process.exit(1);
+        }
+    } else if (command === 'start') {
+        // Start normally with default entry point
+        try {
+            console.log(config.messages.starting);
+            const basePath = args[1] || '.';
+            const resolvedBasePath = path.resolve(basePath);
+            console.log(config.messages.basePath.replace('{path}', resolvedBasePath));
+            console.log();
+
+            const inputHandler = new KeyboardInputHandler();
+            const renderer = new ConsoleRenderer();
+            
+            const engine = new VaudioEngine({
+                basePath: resolvedBasePath,
+                renderer,
+                inputHandler
+            });
+
+            await engine.initialize();
+            
+            console.log(config.messages.initialized);
+            console.log();
+            
+            await engine.start();
+            
+        } catch (error) {
+            console.error(config.messages.error, error);
+            process.exit(1);
+        }
+    } else {
+        console.log(config.messages.unknownCommand);
     }
 }
 
-function showHelp() {
-    console.log('vaudio-cli - Plataforma de jogos de texto/audio');
-    console.log();
-    console.log('Comandos:');
-    console.log('  start [base-path]    - Iniciar vaudio (padrão: pasta atual)');
-    console.log('  help                 - Mostrar esta ajuda');
-    console.log();
-    console.log('Controles durante o uso:');
-    console.log('  1-4: Escolhas diretas');
-    console.log('  q (1+2): Menu/Submenu');
-    console.log('  w (1+4): Informações');
-    console.log('  e (2+3): [Reservado]');
-    console.log('  r (3+4): Repetir/Voltar');
-    console.log('  Ctrl+C: Sair');
-}
-
-// Handle commands
-switch (command) {
-    case 'start':
-        startVaudio(basePath);
-        break;
-    case 'help':
-    default:
-        showHelp();
-        break;
-}
+main();
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n👋 Saindo...');
-  process.exit(0);
+    console.log(`\n${config.messages.exiting}`);
+    process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.log('\n👋 Saindo...');
-  process.exit(0);
+    console.log(`\n${config.messages.exiting}`);
+    process.exit(0);
 });

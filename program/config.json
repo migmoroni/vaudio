@@ -1,0 +1,47 @@
+{
+  "id": "app_config",
+  "description": "Configuração agnóstica para aplicações vaudio",
+  "entry_point": "program/initial/menu.json",
+  "messages": {
+    "starting": "🎮 Iniciando vaudio...",
+    "basePath": "Base path: {path}",
+    "initialized": "✅ Engine inicializada com sucesso!",
+    "error": "❌ Erro ao executar vaudio:",
+    "exiting": "👋 Saindo...",
+    "unknownCommand": "Comando desconhecido.",
+    "optionNotAvailable": "Opção não disponível.",
+    "commandNotRecognized": "Comando não reconhecido.",
+    "choiceNotAvailable": "Escolha não disponível.",
+    "navigationNotImplemented": "Navegação não implementada: {goto}",
+    "programLoadError": "Erro ao carregar programa: {path}",
+    "gameLoadError": "Erro ao carregar jogo: {path}",
+    "sceneLoadError": "Erro ao carregar cena: {path}"
+  },
+  "ui": {
+    "waiting": "> Aguardando comando...",
+    "availableChoices": "Opções disponíveis:",
+    "navigation": "Navegação:",
+    "controls": "Use as teclas 1-4 ou combinações (q,w,e,r) para navegar",
+    "exit": "Ctrl+C: Sair",
+    "continuePrompt": "Pressione qualquer tecla para continuar...",
+    "specialCommands": "Comandos especiais:",
+    "gameMenu": "q (1+2): Menu",
+    "gameInfo": "w (1+4): Informações",
+    "gameReserved": "e (2+3): [Reservado]",
+    "gameRepeat": "r (3+4): Repetir"
+  },
+  "gameInfo": {
+    "title": "=== INFORMAÇÕES DO JOGO ===",
+    "game": "Jogo: {title}",
+    "currentScene": "Cena atual: {scene}",
+    "inventory": "Inventário: {items}",
+    "emptyInventory": "vazio",
+    "availableCommands": "Comandos disponíveis:",
+    "commandsList": [
+      "1-4: Escolhas diretas",
+      "q (1+2): Voltar ao menu principal",
+      "w (1+4): Informações",
+      "r (3+4): Repetir cena"
+    ]
+  }
+}

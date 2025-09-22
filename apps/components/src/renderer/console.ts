@@ -1,18 +1,35 @@
 import { Renderer, Scene, GameState, Program, AppState } from '../types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class ConsoleRenderer implements Renderer {
+  private messages: any = {};
+
+  constructor() {
+    this.loadMessages();
+  }
+
+  private loadMessages() {
+    try {
+      const configPath = path.resolve('./program/config.json');
+      const configData = fs.readFileSync(configPath, 'utf-8');
+      const config = JSON.parse(configData);
+      this.messages = config.messages || {};
+    } catch (error) {
+      // Fallback to empty object if config can't be loaded
+      this.messages = { ui: {}, engine: { errors: {}, info: {} } };
+    }
+  }
   async renderProgram(program: Program, state: AppState): Promise<void> {
     this.clear();
     
-    // Render program description
     console.log(`=== ${program.id.toUpperCase()} ===`);
     console.log();
     console.log(program.description);
     console.log();
     
-    // Render choices
     if (program.choice) {
-      console.log('Opções disponíveis:');
+      console.log(this.messages.ui?.availableChoices || 'Opções disponíveis:');
       
       Object.entries(program.choice).forEach(([commandType, choice]) => {
         if (choice) {
@@ -22,29 +39,25 @@ export class ConsoleRenderer implements Renderer {
       });
       
       console.log();
-      console.log('Navegação:');
-      console.log('Use as teclas 1-4 ou combinações (q,w,e,r) para navegar');
-      console.log('Ctrl+C: Sair');
+      console.log(this.messages.ui?.navigation || 'Navegação:');
+      console.log(this.messages.ui?.controls || 'Use as teclas 1-4 ou combinações (q,w,e,r) para navegar');
+      console.log(this.messages.ui?.exit || 'Ctrl+C: Sair');
     }
     
     console.log();
-    console.log('> Aguardando comando...');
+    console.log(this.messages.ui?.waiting || '> Aguardando comando...');
   }
 
   async renderGame(scene: Scene, state: GameState): Promise<void> {
     this.clear();
     
-    // Render scene title
     console.log(`=== ${scene.title} ===`);
     console.log();
-    
-    // Render scene description
     console.log(scene.description);
     console.log();
     
-    // Render choices if available
     if (scene.choices) {
-      console.log('Escolhas disponíveis:');
+      console.log(this.messages.ui?.availableChoices || 'Escolhas disponíveis:');
       
       Object.entries(scene.choices).forEach(([commandType, choices]) => {
         if (choices && choices.length > 0) {
@@ -56,16 +69,16 @@ export class ConsoleRenderer implements Renderer {
       });
       
       console.log();
-      console.log('Comandos especiais:');
-      console.log('q (1+2): Menu');
-      console.log('w (1+4): Informações');
-      console.log('e (2+3): [Reservado]');
-      console.log('r (3+4): Repetir');
-      console.log('Ctrl+C: Sair');
+      console.log(this.messages.ui?.specialCommands || 'Comandos especiais:');
+      console.log(this.messages.ui?.gameMenu || 'q (1+2): Menu');
+      console.log(this.messages.ui?.gameInfo || 'w (1+4): Informações');
+      console.log(this.messages.ui?.gameReserved || 'e (2+3): [Reservado]');
+      console.log(this.messages.ui?.gameRepeat || 'r (3+4): Repetir');
+      console.log(this.messages.ui?.exit || 'Ctrl+C: Sair');
     }
     
     console.log();
-    console.log('> Aguardando comando...');
+    console.log(this.messages.ui?.waiting || '> Aguardando comando...');
   }
 
   private getKeyDisplay(commandType: string): string {
@@ -92,7 +105,7 @@ export class ConsoleRenderer implements Renderer {
   }
 
   private async waitForKeyPress(): Promise<void> {
-    console.log('Pressione qualquer tecla para continuar...');
+    console.log(this.messages.ui?.continuePrompt || 'Pressione qualquer tecla para continuar...');
     return new Promise((resolve) => {
       const handler = () => {
         process.stdin.removeListener('data', handler);
