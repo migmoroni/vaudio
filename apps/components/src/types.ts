@@ -1,5 +1,5 @@
 // Command types representing the 8 possible input combinations
-export type CommandType = '1' | '2' | '3' | '4' | '1+2' | '1+4' | '2+3' | '3+4';
+export type CommandType = '1' | '2' | '3' | '4' | '1+2' | '1+4' | '3+2' | '3+4';
 
 // Program structure types (for menus and system programs)
 export interface ProgramChoice {

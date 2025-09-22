@@ -1,5 +1,6 @@
 {
     "id": "game_menu",
+    "title": "Menu de Jogos",
     "description": "Selecione um jogo para jogar.",
     "choice": {
         "1": {

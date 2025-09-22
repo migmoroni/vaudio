@@ -37,11 +37,6 @@ export class ConsoleRenderer implements Renderer {
           console.log(`${keyDisplay}: ${choice.label}`);
         }
       });
-      
-      console.log();
-      console.log(this.messages.ui?.navigation || 'Navegação:');
-      console.log(this.messages.ui?.controls || 'Use as teclas 1-4 ou combinações (q,w,e,r) para navegar');
-      console.log(this.messages.ui?.exit || 'Ctrl+C: Sair');
     }
     
     console.log();
@@ -67,14 +62,6 @@ export class ConsoleRenderer implements Renderer {
           });
         }
       });
-      
-      console.log();
-      console.log(this.messages.ui?.specialCommands || 'Comandos especiais:');
-      console.log(this.messages.ui?.gameMenu || 'q (1+2): Menu');
-      console.log(this.messages.ui?.gameInfo || 'w (1+4): Informações');
-      console.log(this.messages.ui?.gameReserved || 'e (2+3): [Reservado]');
-      console.log(this.messages.ui?.gameRepeat || 'r (3+4): Repetir');
-      console.log(this.messages.ui?.exit || 'Ctrl+C: Sair');
     }
     
     console.log();
@@ -89,7 +76,7 @@ export class ConsoleRenderer implements Renderer {
       case '4': return '4';
       case '1+2': return 'q';
       case '1+4': return 'w';
-      case '2+3': return 'e';
+      case '3+2': return 'e';
       case '3+4': return 'r';
       default: return commandType;
     }

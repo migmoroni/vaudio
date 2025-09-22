@@ -1,5 +1,6 @@
 {
     "id": "menu",
+    "title": "Menu Principal",
     "description": "The initial menu program that runs at startup.",
     "choice": {
         "1": {

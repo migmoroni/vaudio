@@ -1,5 +1,6 @@
 {
     "id": "settings",
+    "title": "Configurações",
     "description": "Configurações da aplicação.",
     "choice": {
         "1": {

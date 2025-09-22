@@ -59,7 +59,7 @@ export class KeyboardInputHandler implements InputHandler {
         commandType = '1+4';
         break;
       case 'e': // Simulate 2+3
-        commandType = '2+3';
+        commandType = '3+2';
         break;
       case 'r': // Simulate 3+4
         commandType = '3+4';
