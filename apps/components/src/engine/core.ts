@@ -59,23 +59,30 @@ export class VaudioEngine {
 
   async start(): Promise<void> {
     this.running = true;
+    let shouldRender = true;
     
     while (this.running) {
-      // Render current state
-      if (this.appState.mode === 'program' && this.appState.currentProgram) {
-        await this.renderer.renderProgram(this.appState.currentProgram, this.appState);
-      } else if (this.appState.mode === 'game' && this.appState.currentGame && this.appState.gameState) {
-        const scene = await this.loadGameScene(this.appState.gameState.currentScene);
-        if (scene) {
-          await this.renderer.renderGame(scene, this.appState.gameState);
+      // Only render when needed, not when awaiting confirmation
+      if (shouldRender && !this.appState.awaitingConfirmation) {
+        if (this.appState.mode === 'program' && this.appState.currentProgram) {
+          await this.renderer.renderProgram(this.appState.currentProgram, this.appState);
+        } else if (this.appState.mode === 'game' && this.appState.currentGame && this.appState.gameState) {
+          const scene = await this.loadGameScene(this.appState.gameState.currentScene);
+          if (scene) {
+            await this.renderer.renderGame(scene, this.appState.gameState);
+          }
         }
+        shouldRender = false; // Don't render again until state changes
       }
       
-      // Get user command
+      // Wait for user command
       const command = await this.inputHandler.getCommand();
       
       // Process command
       await this.processCommand(command);
+      
+      // Mark for re-render after processing command
+      shouldRender = true;
     }
   }
 
