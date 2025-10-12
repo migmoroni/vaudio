@@ -1,4 +1,4 @@
-import { Renderer, Scene, GameState, Program, AppState } from '../types';
+import { Renderer, Scene, GameState, Program, AppState, CommandType } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -89,6 +89,19 @@ export class ConsoleRenderer implements Renderer {
   async showMessage(message: string): Promise<void> {
     console.log(`\n${message}\n`);
     await this.waitForKeyPress();
+  }
+
+  async showSelection(option: CommandType, text: string): Promise<void> {
+    this.clear();
+    console.log('=== SELEÇÃO ===');
+    console.log();
+    console.log(`Opção selecionada: ${this.getKeyDisplay(option)}`);
+    console.log(`${text}`);
+    console.log();
+    console.log('💡 Pressione (3+4 / r) para CONFIRMAR a seleção');
+    console.log('   Ou escolha outra opção (1-4)');
+    console.log();
+    console.log('> Aguardando confirmação...');
   }
 
   private async waitForKeyPress(): Promise<void> {

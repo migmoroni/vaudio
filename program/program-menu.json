@@ -1,0 +1,26 @@
+{
+    "id": "program_menu",
+    "description": "Menu geral de programas e configurações da plataforma vaudio.\n\nEste é o menu de controle para todas as funcionalidades do sistema.",
+    "choice": {
+        "1": {
+            "label": "Configurações",
+            "goto": "@/settings/menu.json"
+        },
+        "2": {
+            "label": "Editor",
+            "goto": "@/editor/menu.json"
+        },
+        "3": {
+            "label": "Loja",
+            "goto": "@/store/menu.json"
+        },
+        "4": {
+            "label": "Sobre",
+            "goto": "@/about/menu.json"
+        },
+        "3+4": {
+            "label": "Voltar ao menu principal",
+            "goto": "-"
+        }
+    }
+}

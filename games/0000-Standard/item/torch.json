@@ -1,12 +1,18 @@
 {
     "type": "item",
     "id": "torch",
-    "value": {
-        "lit": {
-            "effects": [
+    "if": [
+        {
+            "condition": {"id":"i_torch", "operation": "==", "value": "lit"},
+            "result": {
+                "effects": [
                 { "action": "temporary", "attribute": "viewing_distance", "operation": "+", "value": 2 }
-            ]
+                ]
+            }
         },
-        "out": {}
-    }
+        {
+            "condition": {"id":"i_torch", "operation": "==", "value": "unlit"},
+            "result": {}
+        }
+    ]
 }

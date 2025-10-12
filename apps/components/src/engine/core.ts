@@ -23,7 +23,11 @@ export class VaudioEngine {
         inventory: [],
         variables: {},
         history: []
-      }
+      },
+      // Initialize new selection system
+      selectedOption: undefined,
+      currentList: 'main',
+      awaitingConfirmation: false
     };
 
     this.loadMessages();
@@ -86,12 +90,70 @@ export class VaudioEngine {
   private async processProgramCommand(command: Command): Promise<void> {
     if (!this.appState.currentProgram) return;
 
-    const choice = this.appState.currentProgram.choice[command.type];
+    // New standardized command logic
+    switch (command.type) {
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+        await this.handleOptionSelection(command.type);
+        break;
+        
+      case '1+2': // Toggle mode (program -> program menu -> program)
+        await this.handleModeToggle();
+        break;
+        
+      case '1+4': // Switch to list 1
+        this.appState.currentList = 'list1';
+        this.appState.selectedOption = undefined;
+        this.appState.awaitingConfirmation = false;
+        break;
+        
+      case '3+2': // Switch to list 2  
+        this.appState.currentList = 'list2';
+        this.appState.selectedOption = undefined;
+        this.appState.awaitingConfirmation = false;
+        break;
+        
+      case '3+4': // Confirm selection
+        if (this.appState.awaitingConfirmation && this.appState.selectedOption) {
+          await this.executeSelection(this.appState.selectedOption);
+        }
+        break;
+        
+      default:
+        const message = this.messages.commandNotRecognized || 'Comando não reconhecido.';
+        await this.renderer.showMessage(message);
+    }
+  }
+
+  private async handleOptionSelection(option: CommandType): Promise<void> {
+    if (!this.appState.currentProgram) return;
+    
+    const choice = this.appState.currentProgram.choice[option];
     if (!choice) {
       const message = this.messages.optionNotAvailable || 'Opção não disponível.';
       await this.renderer.showMessage(message);
       return;
     }
+
+    // Set selection and wait for confirmation
+    this.appState.selectedOption = option;
+    this.appState.awaitingConfirmation = true;
+    
+    // Show the selected option text and prompt for confirmation
+    await this.renderer.showSelection(option, choice.label);
+  }
+
+  private async executeSelection(option: CommandType): Promise<void> {
+    if (!this.appState.currentProgram) return;
+    
+    const choice = this.appState.currentProgram.choice[option];
+    if (!choice) return;
+
+    // Reset selection state
+    this.appState.selectedOption = undefined;
+    this.appState.awaitingConfirmation = false;
 
     if (choice.choice) {
       const subProgram: Program = {
@@ -107,6 +169,27 @@ export class VaudioEngine {
     if (choice.goto) {
       await this.handleNavigation(choice.goto);
     }
+  }
+
+  private async handleModeToggle(): Promise<void> {
+    // For programs, toggle to their respective menu
+    if (this.appState.mode === 'program') {
+      // Determine program type and load appropriate menu
+      const programType = this.determineProgramType();
+      if (programType === 'game') {
+        await this.loadProgram('games/game-menu.json');
+      } else {
+        await this.loadProgram('program/program-menu.json');
+      }
+    }
+  }
+
+  private determineProgramType(): string {
+    // Check current program path or context to determine type
+    if (this.appState.currentProgram?.id?.includes('game')) {
+      return 'game';
+    }
+    return 'program';
   }
 
   private async handleNavigation(goto: string): Promise<void> {

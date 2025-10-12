@@ -66,6 +66,11 @@ export interface AppState {
   currentGame?: GameConfig;
   gameState?: GameState;
   programStack: string[]; // For navigation history
+  
+  // New selection system
+  selectedOption?: CommandType; // Currently selected option (1-4)
+  currentList: 'main' | 'list1' | 'list2'; // Which list is active
+  awaitingConfirmation: boolean; // Whether user needs to press 3+4 to confirm
 }
 
 // Input system types
@@ -93,6 +98,7 @@ export interface Renderer {
   renderGame(scene: Scene, state: GameState): Promise<void>;
   clear(): void;
   showMessage(message: string): Promise<void>;
+  showSelection(option: CommandType, text: string): Promise<void>; // Show selected option awaiting confirmation
 }
 
 export interface InputHandler {

@@ -1,22 +1,22 @@
 {
     "type": "action",
-    "id": "torch",
+    "id": "use_torch",
     "if": [
         {
-            "condition": { "item": "torch", "operation": "==", "value": "out" },
+            "condition": { "id": "i_torch", "operation": "==", "value": "unlit" },
             "result": {
                 "description": "Acender a tocha",
                 "effects": [
-                    { "action": "modify", "item": "torch", "value": "lit" }
+                    { "action": "modify", "id": "i_torch", "value": "lit" }
                 ]
             }
         },
         {
-            "condition": { "item": "torch", "operation": "==", "value": "lit" },
+            "condition": { "id": "i_torch", "operation": "==", "value": "lit" },
             "result": {
                 "description": "Apagar a tocha",
                 "effects": [
-                    { "action": "modify", "item": "torch", "value": "out" }
+                    { "action": "modify", "id": "i_torch", "value": "unlit" }
                 ]
             }
         }

@@ -2,6 +2,23 @@
   "id": "app_config",
   "description": "Configuração agnóstica para aplicações vaudio",
   "entry_point": "program/initial/menu.json",
+  "commandSystem": {
+    "description": "Sistema padronizado de comandos globais",
+    "commands": {
+      "1-4": "Seleção de opções (requer confirmação com 3+4)",
+      "1+2": "Alternar modo (programa -> menu do programa -> programa)",
+      "1+4": "Alternar para lista 1 de opções",
+      "3+2": "Alternar para lista 2 de opções", 
+      "3+4": "Confirmar seleção atual"
+    },
+    "workflow": [
+      "1. Pressione 1-4 para selecionar uma opção",
+      "2. Visualize a opção selecionada",
+      "3. Pressione 3+4 para confirmar",
+      "4. Use 1+2 para alternar entre programa e menu",
+      "5. Use 1+4/3+2 para alternar entre listas"
+    ]
+  },
   "messages": {
     "starting": "🎮 Iniciando vaudio...",
     "basePath": "Base path: {path}",
