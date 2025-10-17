@@ -4,14 +4,22 @@ export type CommandType = '1' | '2' | '3' | '4' | '1+2' | '1+4' | '3+2' | '3+4';
 // Program structure types (for menus and system programs)
 export interface ProgramChoice {
   label: string;
+  text?: string; // Optional descriptive text for the action
   goto?: string; // "@/path" for programs, "games/path" for games, "-" for back, "*" for exit
+  do?: string; // Action to execute
   choice?: Record<CommandType, ProgramChoice>; // Sub-menu choices
 }
 
+// Support for both choice formats:
+// Format 1: choice: { "1": ProgramChoice, "2": ProgramChoice }
+// Format 2: choice: { "1": ProgramChoice[], "2": ProgramChoice[] }
+export type ChoiceValue = ProgramChoice | ProgramChoice[];
+
 export interface Program {
   id: string;
+  title?: string;
   description: string;
-  choice: Record<CommandType, ProgramChoice>;
+  choice: Record<CommandType, ChoiceValue>;
   extra?: string; // Reference to extra frame number (e.g., "1", "2", "3", "4")
 }
 
@@ -74,6 +82,9 @@ export interface AppState {
   currentList: 'main' | 'extra'; // Which list is active (removed list1/list2)
   awaitingConfirmation: boolean; // Whether user needs to press 3+4 to confirm
   extraFrameNumber?: string; // Current extra frame being displayed (1-4)
+  
+  // List navigation for Format 2 choices (arrays)
+  optionListIndices: Record<CommandType, number>; // Current position in each option's array
 }
 
 // Input system types
@@ -98,7 +109,7 @@ export interface EngineOptions {
 
 export interface Renderer {
   renderProgram(program: Program, state: AppState): Promise<void>;
-  renderGame(scene: Scene, state: GameState): Promise<void>;
+  renderGame(scene: Scene, state: GameState, appState?: AppState): Promise<void>;
   clear(): void;
   showMessage(message: string): Promise<void>;
   showSelection(option: CommandType, text: string): Promise<void>; // Show selected option awaiting confirmation

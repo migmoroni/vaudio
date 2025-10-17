@@ -1,4 +1,4 @@
-import { Renderer, Scene, GameState, Program, AppState, CommandType } from '../types';
+import { Renderer, Scene, GameState, Program, AppState, CommandType, ChoiceValue } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -34,7 +34,17 @@ export class ConsoleRenderer implements Renderer {
       Object.entries(program.choice).forEach(([commandType, choice]) => {
         if (choice) {
           const keyDisplay = this.getKeyDisplay(commandType);
-          console.log(`${keyDisplay}: ${choice.label}`);
+          
+          // Handle both formats: single choice or array of choices
+          if (Array.isArray(choice)) {
+            // Format 2: Show first option in array (user cycles through with repeated presses)
+            if (choice.length > 0) {
+              console.log(`${keyDisplay}: ${choice[0].label} (${choice.length} opções)`);
+            }
+          } else {
+            // Format 1: Single choice
+            console.log(`${keyDisplay}: ${choice.label}`);
+          }
         }
       });
     }
@@ -43,7 +53,7 @@ export class ConsoleRenderer implements Renderer {
     console.log(this.messages.ui?.waiting || '> Aguardando comando...');
   }
 
-  async renderGame(scene: Scene, state: GameState): Promise<void> {
+  async renderGame(scene: Scene, state: GameState, appState?: AppState): Promise<void> {
     this.clear();
     
     console.log(`=== ${scene.title} ===`);
@@ -56,10 +66,19 @@ export class ConsoleRenderer implements Renderer {
       
       Object.entries(scene.choices).forEach(([commandType, choices]) => {
         if (choices && choices.length > 0) {
-          choices.forEach((choice, index) => {
-            const keyDisplay = this.getKeyDisplay(commandType);
-            console.log(`${keyDisplay}: ${choice.text}`);
-          });
+          const keyDisplay = this.getKeyDisplay(commandType);
+          
+          // For scenes, show current option based on optionListIndices or first option
+          const currentIndex = appState?.optionListIndices?.[commandType as CommandType] || 0;
+          const choice = choices[currentIndex] || choices[0];
+          
+          if (choice) {
+            if (choices.length > 1) {
+              console.log(`${keyDisplay}: ${choice.text} (${choices.length} opções)`);
+            } else {
+              console.log(`${keyDisplay}: ${choice.text}`);
+            }
+          }
         }
       });
     }

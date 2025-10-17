@@ -88,34 +88,79 @@ export class CommandProcessor {
       return;
     }
 
-    const choice = this.programHandler.getChoice(appState.currentProgram, option);
+    // Initialize option list index if not exists
+    if (!appState.optionListIndices) {
+      appState.optionListIndices = {} as Record<CommandType, number>;
+    }
+    if (appState.optionListIndices[option] === undefined) {
+      appState.optionListIndices[option] = 0;
+    }
 
-    // Set selection and wait for confirmation
-    appState.selectedOption = option;
-    appState.awaitingConfirmation = true;
-    
-    // Show the selected option text and prompt for confirmation
-    await this.renderer.showSelection(option, choice.label);
+    // Check if this is an array choice (Format 2)
+    if (this.programHandler.isChoiceArray(appState.currentProgram, option)) {
+      // Format 2: Navigate through array options
+      const arrayLength = this.programHandler.getChoiceArrayLength(appState.currentProgram, option);
+      
+      if (arrayLength > 0) {
+        // Move to next option in the array (cycle back to 0 if at end)
+        appState.optionListIndices[option] = (appState.optionListIndices[option] + 1) % arrayLength;
+        
+        const currentChoice = this.programHandler.getCurrentChoice(
+          appState.currentProgram, 
+          option, 
+          appState.optionListIndices[option]
+        );
+
+        if (currentChoice) {
+          // Set selection and wait for confirmation
+          appState.selectedOption = option;
+          appState.awaitingConfirmation = true;
+          
+          // Show the selected option text and prompt for confirmation
+          await this.renderer.showSelection(option, currentChoice.label);
+        }
+      }
+    } else {
+      // Format 1: Single choice - immediate selection
+      const currentChoice = this.programHandler.getCurrentChoice(appState.currentProgram, option, 0);
+      
+      if (currentChoice) {
+        // Set selection and wait for confirmation
+        appState.selectedOption = option;
+        appState.awaitingConfirmation = true;
+        
+        // Show the selected option text and prompt for confirmation
+        await this.renderer.showSelection(option, currentChoice.label);
+      }
+    }
   }
 
   private async executeSelection(option: CommandType, appState: AppState): Promise<void> {
     if (!appState.currentProgram) return;
     
-    const choice = this.programHandler.getChoice(appState.currentProgram, option);
-    if (!choice) return;
+    // Get the current choice considering array navigation
+    const currentIndex = appState.optionListIndices?.[option] || 0;
+    const currentChoice = this.programHandler.getCurrentChoice(appState.currentProgram, option, currentIndex);
+    
+    if (!currentChoice) return;
 
     // Reset selection state
     appState.selectedOption = undefined;
     appState.awaitingConfirmation = false;
 
-    if (choice.choice) {
-      const subProgram = this.programHandler.createSubProgram(appState.currentProgram, choice);
+    if (currentChoice.choice) {
+      const subProgram = this.programHandler.createSubProgram(appState.currentProgram, currentChoice);
       appState.currentProgram = subProgram;
       return;
     }
 
-    if (choice.goto) {
-      await this.programHandler.handleNavigation(choice.goto, appState);
+    if (currentChoice.goto) {
+      await this.programHandler.handleNavigation(currentChoice.goto, appState);
+    }
+
+    if (currentChoice.do) {
+      // Handle action execution (for games or special actions)
+      await this.renderer.showMessage(`Executando ação: ${currentChoice.do}`);
     }
   }
 
@@ -162,7 +207,7 @@ export class CommandProcessor {
     if (!appState.currentProgram) return;
     
     // Check if return command is available in current choices
-    const returnChoice = appState.currentProgram.choice['3+2'];
+    const returnChoice = this.programHandler.getCurrentChoice(appState.currentProgram, '3+2', 0);
     if (returnChoice) {
       // Execute the return navigation
       if (returnChoice.goto) {

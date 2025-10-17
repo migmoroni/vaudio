@@ -35,7 +35,9 @@ export class VaudioEngine {
       selectedOption: undefined,
       currentList: 'main',
       awaitingConfirmation: false,
-      extraFrameNumber: undefined
+      extraFrameNumber: undefined,
+      // Initialize list indices for Format 2 navigation
+      optionListIndices: {} as Record<CommandType, number>
     };
 
     // Initialize modular components
@@ -89,7 +91,7 @@ export class VaudioEngine {
         } else if (this.appState.mode === 'game' && this.appState.currentGame && this.appState.gameState) {
           const scene = await this.gameHandler.loadGameScene(this.appState.gameState.currentScene, this.appState);
           if (scene) {
-            await this.renderer.renderGame(scene, this.appState.gameState);
+            await this.renderer.renderGame(scene, this.appState.gameState, this.appState);
           }
         }
         shouldRender = false; // Don't render again until state changes

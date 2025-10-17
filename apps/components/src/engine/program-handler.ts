@@ -1,4 +1,4 @@
-import { Program, AppState, CommandType } from '../types';
+import { Program, AppState, CommandType, ChoiceValue, ProgramChoice } from '../types';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -27,15 +27,45 @@ export class ProgramHandler {
     return !!program.choice[option];
   }
 
-  getChoice(program: Program, option: CommandType) {
+  getChoice(program: Program, option: CommandType): ChoiceValue | undefined {
     return program.choice[option];
   }
 
-  createSubProgram(program: Program, choice: any): Program {
+  // Get current choice for a command option, considering array navigation
+  getCurrentChoice(program: Program, option: CommandType, currentIndex: number = 0): ProgramChoice | undefined {
+    const choice = this.getChoice(program, option);
+    if (!choice) return undefined;
+
+    // Format 1: Single choice object
+    if (!Array.isArray(choice)) {
+      return choice;
+    }
+
+    // Format 2: Array of choices - return choice at current index
+    if (choice.length > 0 && currentIndex >= 0 && currentIndex < choice.length) {
+      return choice[currentIndex];
+    }
+
+    return undefined;
+  }
+
+  // Check if a choice is an array (Format 2)
+  isChoiceArray(program: Program, option: CommandType): boolean {
+    const choice = this.getChoice(program, option);
+    return Array.isArray(choice);
+  }
+
+  // Get the length of a choice array (0 for Format 1)
+  getChoiceArrayLength(program: Program, option: CommandType): number {
+    const choice = this.getChoice(program, option);
+    return Array.isArray(choice) ? choice.length : 0;
+  }
+
+  createSubProgram(program: Program, choice: ProgramChoice): Program {
     return {
       id: `${program.id}_submenu`,
       description: choice.label,
-      choice: choice.choice
+      choice: (choice.choice || {}) as Record<CommandType, ChoiceValue>
     };
   }
 
