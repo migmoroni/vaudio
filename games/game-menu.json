@@ -17,10 +17,6 @@
         "4": {
             "label": "Lista de Jogos",
             "goto": ""
-        },
-        "3+4": {
-            "label": "Voltar ao jogo",
-            "goto": "-"
         }
     }
 }

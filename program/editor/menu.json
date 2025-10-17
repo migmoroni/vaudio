@@ -11,7 +11,7 @@
             "label": "Editar jogo existente",
             "goto": "@/editor/edit.json"
         },
-        "3+4": {
+        "3+2": {
             "label": "Voltar",
             "goto": "-"
         }

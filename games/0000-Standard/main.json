@@ -7,15 +7,14 @@
   "description": "A brief description of the game.",
   "tag": ["adventure", "fantasy", "puzzle"],
 
-  "entry": "scene/intro.json",
-
-  "module": {
-    "scene": {"path": "scene/"},
-    "npc": {"path": "npc/"},
-    "item": {"path": "item/"},
-    "rule": {"path": "rule/"},
-    "narrative": {"path": "narrative/"}
+  "extra": {
+    "1": "extra/inventory.json",
+    "2": "extra/map.json",
+    "3": "extra/quests.json",
+    "4": "extra/skills.json"
   },
+
+  "entry": "scene/intro.json",
 
   "config": {
     "language": ["pt-BR"]
