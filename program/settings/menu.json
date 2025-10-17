@@ -15,7 +15,7 @@
             "label": "Teclado",
             "goto": "@/settings/keyboard.json"
         },
-        "3+4": {
+        "3+2": {
             "label": "Voltar",
             "goto": "-"
         }

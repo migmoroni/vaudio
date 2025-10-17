@@ -49,12 +49,14 @@
                 ]
             },
             {
+                "label": "Voltar para a entrada",
                 "text": "Voltar para a entrada",
                 "goto": "scene/forest/forest_entry.json"
             }
         ],
         "2": [
             {
+                "label": "Manipular a tocha",
                 "text": "Você decide...",
                 "do": "action/use_torch.json"
             }

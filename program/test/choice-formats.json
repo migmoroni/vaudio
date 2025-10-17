@@ -1,0 +1,50 @@
+{
+    "id": "choice_formats_demo",
+    "title": "Demonstração dos Formatos de Choice",
+    "description": "Este programa demonstra os dois formatos de organização do campo 'choice'.\n\nFormato 1: Comandos 1 e 2 têm uma única ação direta.\nFormato 2: Comandos 3 e 4 têm múltiplas opções - pressione repetidamente para navegar.\n\nUse 3+4 para confirmar, 3+2 para voltar.",
+    "choice": {
+        "1": {
+            "label": "Ação Direta A",
+            "text": "Executa ação direta A",
+            "goto": "@/initial/menu.json"
+        },
+        "2": {
+            "label": "Ação Direta B", 
+            "text": "Executa ação direta B",
+            "goto": "@/help/menu.json"
+        },
+        "3": [
+            {
+                "label": "Primeira opção do comando 3",
+                "text": "Executar primeira ação",
+                "goto": "@/about/menu.json"
+            },
+            {
+                "label": "Segunda opção do comando 3",
+                "text": "Executar segunda ação", 
+                "goto": "@/settings/menu.json"
+            },
+            {
+                "label": "Terceira opção do comando 3",
+                "text": "Executar terceira ação",
+                "goto": "@/store/menu.json"
+            }
+        ],
+        "4": [
+            {
+                "label": "Config A",
+                "text": "Configuração tipo A",
+                "do": "config/setup_a.json"
+            },
+            {
+                "label": "Config B", 
+                "text": "Configuração tipo B",
+                "do": "config/setup_b.json"
+            }
+        ],
+        "3+2": {
+            "label": "Voltar ao Menu Principal",
+            "goto": "@/initial/menu.json"
+        }
+    }
+}

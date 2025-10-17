@@ -23,6 +23,10 @@
                     "label": "Editor",
                     "goto": "@/editor/menu.json"
                 },
+                "4": {
+                    "label": "Test Choice Formats",
+                    "goto": "@/test/choice-formats.json"
+                },
                 "3+2": {
                     "label": "Return", 
                     "goto": "-"
@@ -34,10 +38,10 @@
             "goto": "@/settings/menu.json"
         },
         "4": {
-            "label": "Help",
-            "goto": "@/help/menu.json"
+            "label": "Teste Formatos",
+            "goto": "@/formats-test.json"
         },
-        "3+4": {
+        "3+2": {
             "label": "Exit to Desktop",
             "goto": "*"
         }

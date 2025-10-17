@@ -1,0 +1,33 @@
+{
+    "id": "formats_test",
+    "title": "Teste dos Formatos de Choice",
+    "description": "Este programa demonstra os dois formatos suportados:\n\n💡 FORMATO 1 (Comando 1): Uma ação direta\n💡 FORMATO 2 (Comando 3): Lista com múltiplas opções\n\nNo Formato 2, pressione o comando '3' repetidamente para navegar pelas opções.",
+    "choice": {
+        "1": {
+            "label": "Ação Única (Formato 1)",
+            "text": "Esta é uma ação direta - formato padrão",
+            "goto": "@/settings/menu.json"
+        },
+        "3": [
+            {
+                "label": "Primeira opção da lista",
+                "text": "Escolher primeira opção",
+                "goto": "@/about/menu.json"
+            },
+            {
+                "label": "Segunda opção da lista", 
+                "text": "Escolher segunda opção",
+                "goto": "@/help/menu.json"
+            },
+            {
+                "label": "Terceira opção da lista",
+                "text": "Escolher terceira opção",
+                "goto": "@/store/menu.json"
+            }
+        ],
+        "3+2": {
+            "label": "Voltar ao Menu Principal",
+            "goto": "@/initial/menu.json"
+        }
+    }
+}

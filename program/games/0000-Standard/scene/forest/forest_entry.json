@@ -6,17 +6,30 @@
   "choice": {
     "1": [
       {
+        "label": "Escolher caminho iluminado",
         "text": "Seguir caminho iluminado",
         "goto": "scene/forest/forest_light.json"
       },
       {
+        "label": "Escolher caminho escuro",
         "text": "Seguir caminho escuro",
         "goto": "scene/forest/forest_dark.json"
+      },
+      {
+        "label": "Escolher caminho gravelado",
+        "text": "Seguir caminho gravelado",
+        "goto": "scene/forest/forest_gray.json"
       }
     ],
     "2": [
       {
+        "label": "Ascender tocha",
         "text": "Ascende uma tocha",
+        "do": "action/torch_light.json"
+      },
+      {
+        "label": "Apagar tocha",
+        "text": "Apaga uma tocha",
         "do": "action/torch_light.json"
       }
     ]
