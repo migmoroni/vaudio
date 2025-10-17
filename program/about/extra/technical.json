@@ -1,0 +1,42 @@
+{
+  "id": "technical_info",
+  "type": "extra_frame",
+  "title": "Informações Técnicas",
+  "description": "Detalhes técnicos da engine Vaudio",
+  "content": {
+    "sections": [
+      {
+        "title": "🏗️ Arquitetura",
+        "items": [
+          "Engine modular componentizada",
+          "Sistema agnóstico para 4 plataformas",
+          "Baseado em TypeScript/Node.js",
+          "Configuração 100% JSON-driven"
+        ]
+      },
+      {
+        "title": "⚡ Performance",
+        "items": [
+          "Sistema de comandos otimizado (8 combinações)",
+          "Carregamento assíncrono de recursos",
+          "Renderização sob demanda",
+          "Gestão eficiente de memória"
+        ]
+      },
+      {
+        "title": "🔧 Tecnologias",
+        "items": [
+          "TypeScript para type safety",
+          "PNPM workspace para monorepo",
+          "Sistema de input keyboard raw mode",
+          "JSON Schema para validação"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "frame_type": "technical",
+    "last_updated": "2025-10-17",
+    "version": "1.0.0"
+  }
+}

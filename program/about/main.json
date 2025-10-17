@@ -1,0 +1,22 @@
+{
+  "id": "about",
+  "title": "Sobre Vaudio",
+  "version": "1.0.0",
+  "author": ["Vaudio Team"],
+  "license": "MIT",
+  "description": "Informações sobre a plataforma vaudio",
+  "tag": ["info", "about"],
+  
+  "extra": {
+    "1": "extra/technical.json",
+    "2": "extra/features.json",
+    "3": "extra/roadmap.json",
+    "4": "extra/community.json"
+  },
+  
+  "entry": "menu.json",
+  
+  "config": {
+    "language": ["pt-BR", "en-US"]
+  }
+}

@@ -6,7 +6,7 @@
     "choice": {
         "1": {
             "label": "Jogo Standard",
-            "goto": "games/0000-Standard"
+            "goto": "@/games/0000-Standard/scene/intro.json"
         }
     }
 }

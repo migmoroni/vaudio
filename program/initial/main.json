@@ -1,0 +1,22 @@
+{
+  "id": "main_menu",
+  "title": "Menu Principal Vaudio",
+  "version": "1.0.0", 
+  "author": ["Vaudio Team"],
+  "license": "MIT",
+  "description": "Menu principal da plataforma vaudio",
+  "tag": ["menu", "main"],
+  
+  "extra": {
+    "1": "extra/shortcuts.json",
+    "2": "extra/stats.json", 
+    "3": "extra/recent.json",
+    "4": "extra/tips.json"
+  },
+  
+  "entry": "menu.json",
+  
+  "config": {
+    "language": ["pt-BR", "en-US"]
+  }
+}

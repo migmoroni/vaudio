@@ -1,7 +1,8 @@
 {
     "id": "menu",
     "title": "Menu Principal",
-    "description": "The initial menu program that runs at startup.",
+    "description": "Menu principal da plataforma vaudio.\n\nUse os comandos 1-4 para navegar e 3+4 para confirmar.\nPressione 1+4 (w) para ver atalhos extras.",
+    "extra": "1",
     "choice": {
         "1": {
             "label": "About",
@@ -22,8 +23,8 @@
                     "label": "Editor",
                     "goto": "@/editor/menu.json"
                 },
-                "3+4": {
-                    "label": "Return",
+                "3+2": {
+                    "label": "Return", 
                     "goto": "-"
                 }
             }

@@ -7,8 +7,8 @@
     "commands": {
       "1-4": "Seleção de opções (requer confirmação com 3+4)",
       "1+2": "Alternar modo (programa -> menu do programa -> programa)",
-      "1+4": "Alternar para lista 1 de opções",
-      "3+2": "Alternar para lista 2 de opções", 
+      "1+4": "Alternar para quadros extras (definidos no main.json)",
+      "3+2": "Comando de retorno (quando disponível nos choices)", 
       "3+4": "Confirmar seleção atual"
     },
     "workflow": [
@@ -16,7 +16,8 @@
       "2. Visualize a opção selecionada",
       "3. Pressione 3+4 para confirmar",
       "4. Use 1+2 para alternar entre programa e menu",
-      "5. Use 1+4/3+2 para alternar entre listas"
+      "5. Use 1+4 para acessar quadros extras",
+      "6. Use 3+2 para retornar (quando disponível)"
     ]
   },
   "messages": {
@@ -31,7 +32,9 @@
     "choiceNotAvailable": "Escolha não disponível.",
     "navigationNotImplemented": "Navegação não implementada: {goto}",
     "programLoadError": "Erro ao carregar programa: {path}",
-    "gameLoadError": "Erro ao carregar jogo: {path}"
+    "gameLoadError": "Erro ao carregar jogo: {path}",
+    "returnNotAvailable": "Comando de retorno não disponível neste contexto.",
+    "extraFrameError": "Erro ao carregar quadro extra."
   },
   "ui": {
     "waiting": "> Aguardando comando...",

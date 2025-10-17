@@ -13,6 +13,7 @@
                     {
                         "condition": { "attribute": "viewing_distance", "operator": ">=", "value": 2 },
                         "result": {
+                            "label": "Seguir adiante",
                             "text": "Com a tocha acesa, você vê um rio à frente e decide segui-lo",
                             "goto": "scene/forest/forest_river.json"
                         }
@@ -20,20 +21,24 @@
                     {
                         "condition": { "attribute": "viewing_distance", "operator": "<", "value": 2 },
                         "result": {
-                            "text": "Sem iluminação suficiente, você não vê nada.",
+                            "label": "Seguir adiante",
+                            "text": "Sem iluminação suficiente, você vê pouco.",
                             "choice": {
                                 "1": [
-                                    {
-                                        "text": "Tentar voltar para a entrada",
+                                    { 
+                                        "label": "Tentar voltar para a entrada",
+                                        "text": "Você tenta voltar, mas acaba se perdendo ainda mais na escuridão.",
                                         "goto": "scene/forest/forest_entry.json"
                                     },
                                     {
-                                        "text": "Continuar andando no escuro",
+                                        "label": "Continuar andando no escuro",
+                                        "text": "Você tropeça em algo e cai em um buraco escondido. Ao se levantar, percebe que está perto de uma cachoeira.",
                                         "goto": "scene/forest/forest_fall.json"
                                     }
                                 ],
                                 "2": [
                                     {
+                                        "label": "Manipular a tocha",
                                         "text": "Você decide...",
                                         "do": "action/use_torch.json"
                                     }

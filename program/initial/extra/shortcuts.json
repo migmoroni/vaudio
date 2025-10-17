@@ -1,0 +1,41 @@
+{
+  "id": "shortcuts_info",
+  "type": "extra_frame",
+  "title": "Atalhos e Comandos",
+  "description": "Lista completa de atalhos disponíveis na plataforma vaudio",
+  "content": {
+    "sections": [
+      {
+        "title": "🎯 Comandos Básicos", 
+        "items": [
+          "1, 2, 3, 4 → Selecionar opções",
+          "q (1+2) → Alternar modo programa/menu",
+          "w (1+4) → Acessar quadros extras",
+          "e (3+2) → Retornar (quando disponível)",
+          "r (3+4) → Confirmar seleção"
+        ]
+      },
+      {
+        "title": "⚡ Atalhos Rápidos",
+        "items": [
+          "Ctrl+C → Sair a qualquer momento",
+          "ESC → Cancelar ação atual",
+          "Enter → Confirmar entrada de texto"
+        ]
+      },
+      {
+        "title": "🎮 Comandos de Jogo",
+        "items": [
+          "Mesmos comandos básicos aplicam",
+          "Comandos específicos por jogo",
+          "Sistema de inventário integrado"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "frame_type": "shortcuts",
+    "priority": "high",
+    "version": "1.0.0"
+  }
+}
