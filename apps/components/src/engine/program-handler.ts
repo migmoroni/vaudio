@@ -67,4 +67,26 @@ export class ProgramHandler {
         break;
     }
   }
+
+  async loadMainConfig(configPath: string): Promise<any> {
+    try {
+      const fullPath = path.join(this.basePath, configPath);
+      const configData = await fs.readFile(fullPath, 'utf-8');
+      return JSON.parse(configData);
+    } catch (error) {
+      throw new Error(`Erro ao carregar configuração principal: ${configPath}`);
+    }
+  }
+
+  async loadExtraContent(mainConfigPath: string, extraPath: string): Promise<any> {
+    try {
+      // Get the directory of the main config
+      const configDir = path.dirname(path.join(this.basePath, mainConfigPath));
+      const fullExtraPath = path.join(configDir, extraPath);
+      const extraData = await fs.readFile(fullExtraPath, 'utf-8');
+      return JSON.parse(extraData);
+    } catch (error) {
+      throw new Error(`Erro ao carregar conteúdo extra: ${extraPath}`);
+    }
+  }
 }

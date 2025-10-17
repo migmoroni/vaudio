@@ -12,6 +12,7 @@ export interface Program {
   id: string;
   description: string;
   choice: Record<CommandType, ProgramChoice>;
+  extra?: string; // Reference to extra frame number (e.g., "1", "2", "3", "4")
 }
 
 // Game structure types
@@ -24,7 +25,8 @@ export interface GameConfig {
   description: string;
   tag: string[];
   entry: string;
-  module: {
+  extra?: Record<string, string>; // Extra frames mapping (e.g., "1": "extra/inventory.json")
+  module?: {
     scene: { path: string };
     npc: { path: string };
     item: { path: string };
@@ -34,7 +36,7 @@ export interface GameConfig {
   };
   config: {
     language: string[];
-    command_map: Record<CommandType, string>;
+    command_map?: Record<CommandType, string>;
   };
 }
 
@@ -69,8 +71,9 @@ export interface AppState {
   
   // New selection system
   selectedOption?: CommandType; // Currently selected option (1-4)
-  currentList: 'main' | 'list1' | 'list2'; // Which list is active
+  currentList: 'main' | 'extra'; // Which list is active (removed list1/list2)
   awaitingConfirmation: boolean; // Whether user needs to press 3+4 to confirm
+  extraFrameNumber?: string; // Current extra frame being displayed (1-4)
 }
 
 // Input system types

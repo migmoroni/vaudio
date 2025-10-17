@@ -69,7 +69,7 @@ export class GameHandler {
   async processGameCommand(command: CommandType, appState: AppState): Promise<void> {
     if (!appState.currentGame || !appState.gameState) return;
 
-    const commandAction = appState.currentGame.config.command_map[command];
+    const commandAction = appState.currentGame.config.command_map?.[command];
     
     switch (commandAction) {
       case 'choice':

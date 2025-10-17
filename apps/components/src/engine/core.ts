@@ -34,7 +34,8 @@ export class VaudioEngine {
       // Initialize new selection system
       selectedOption: undefined,
       currentList: 'main',
-      awaitingConfirmation: false
+      awaitingConfirmation: false,
+      extraFrameNumber: undefined
     };
 
     // Initialize modular components

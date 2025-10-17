@@ -55,16 +55,12 @@ export class CommandProcessor {
         await this.handleModeToggle(appState);
         break;
         
-      case '1+4': // Switch to list 1
-        appState.currentList = 'list1';
-        appState.selectedOption = undefined;
-        appState.awaitingConfirmation = false;
+      case '1+4': // Access extra frames
+        await this.handleExtraFrames(appState);
         break;
         
-      case '3+2': // Switch to list 2  
-        appState.currentList = 'list2';
-        appState.selectedOption = undefined;
-        appState.awaitingConfirmation = false;
+      case '3+2': // Return command (when available in choices)
+        await this.handleReturnCommand(appState);
         break;
         
       case '3+4': // Confirm selection
@@ -142,5 +138,72 @@ export class CommandProcessor {
       return 'game';
     }
     return 'program';
+  }
+
+  private async handleExtraFrames(appState: AppState): Promise<void> {
+    if (appState.currentList === 'extra') {
+      // If already in extra mode, go back to main
+      appState.currentList = 'main';
+      appState.extraFrameNumber = undefined;
+    } else {
+      // Switch to extra mode
+      appState.currentList = 'extra';
+      // Load extra frame from current program's configuration
+      if (appState.currentProgram?.extra) {
+        appState.extraFrameNumber = appState.currentProgram.extra;
+        await this.loadExtraFrame(appState);
+      }
+    }
+    appState.selectedOption = undefined;
+    appState.awaitingConfirmation = false;
+  }
+
+  private async handleReturnCommand(appState: AppState): Promise<void> {
+    if (!appState.currentProgram) return;
+    
+    // Check if return command is available in current choices
+    const returnChoice = appState.currentProgram.choice['3+2'];
+    if (returnChoice) {
+      // Execute the return navigation
+      if (returnChoice.goto) {
+        await this.programHandler.handleNavigation(returnChoice.goto, appState);
+      }
+    } else {
+      const message = this.messages.returnNotAvailable || 'Comando de retorno não disponível neste contexto.';
+      await this.renderer.showMessage(message);
+    }
+  }
+
+  private async loadExtraFrame(appState: AppState): Promise<void> {
+    if (!appState.extraFrameNumber) return;
+    
+    try {
+      // Load the main.json from current program's base directory to get extra mappings
+      const mainConfigPath = await this.findMainConfig(appState);
+      if (mainConfigPath) {
+        const mainData = await this.programHandler.loadMainConfig(mainConfigPath);
+        const extraPath = mainData.extra?.[appState.extraFrameNumber];
+        
+        if (extraPath) {
+          // Load the extra frame content
+          const extraContent = await this.programHandler.loadExtraContent(mainConfigPath, extraPath);
+          // Here you would render the extra content or handle it appropriately
+          await this.renderer.showMessage(`Extra frame ${appState.extraFrameNumber}: ${extraContent.description || 'Conteúdo extra'}`);
+        }
+      }
+    } catch (error) {
+      const message = this.messages.extraFrameError || 'Erro ao carregar quadro extra.';
+      await this.renderer.showMessage(message);
+    }
+  }
+
+  private async findMainConfig(appState: AppState): Promise<string | null> {
+    // Logic to find the main.json for the current program/game context
+    // This would depend on how you want to structure the program directories
+    // For now, assuming it's in the same directory as the current program
+    if (appState.currentGame) {
+      return `games/${appState.currentGame.id}/main.json`;
+    }
+    return null;
   }
 }
